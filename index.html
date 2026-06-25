@@ -31,32 +31,38 @@
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
     <div id="root"></div>
 
-    <!-- Cargar los módulos de Firebase -->
-  <script type="text/babel" data-presets="react">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Exportar los módulos a la ventana global para que puedan ser usados en el script de tipo "text/babel"
+    <!-- Cargar los módulos de Firebase (versión compat UMD, compatible con Babel standalone) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script>
+        // Exponer las funciones de Firebase en window.firebaseModules usando la API compat (v9 compat)
         window.firebaseModules = {
-            initializeApp,
-            getAuth,
-            onAuthStateChanged,
-            signInWithEmailAndPassword,
-            signOut,
-            getFirestore,
-            doc,
-            getDoc,
-            addDoc,
-            setDoc,
-            updateDoc,
-            deleteDoc,
-            onSnapshot,
-            collection,
-            query,
-            where,
-            getDocs,
-            writeBatch,
+            initializeApp:            (...a) => firebase.initializeApp(...a),
+            getAuth:                  (app) => app.auth(),
+            onAuthStateChanged:       (auth, cb) => auth.onAuthStateChanged(cb),
+            signInWithEmailAndPassword: (auth, e, p) => auth.signInWithEmailAndPassword(e, p),
+            signOut:                  (auth) => auth.signOut(),
+            getFirestore:             (app) => app.firestore(),
+            doc:                      (dbOrRef, ...path) => {
+                // Si el primer argumento es una colección (tiene método .doc), usarlo directamente
+                if (dbOrRef && typeof dbOrRef.doc === 'function' && typeof dbOrRef.firestore === 'function') {
+                    return dbOrRef.doc(path[0]);
+                }
+                // Si es la db raíz, construir el path completo
+                return dbOrRef.doc(path.join('/'));
+            },
+            getDoc:                   (ref) => ref.get(),
+            addDoc:                   (ref, data) => ref.add(data),
+            setDoc:                   (ref, data, opts) => opts ? ref.set(data, opts) : ref.set(data),
+            updateDoc:                (ref, data) => ref.update(data),
+            deleteDoc:                (ref) => ref.delete(),
+            onSnapshot:               (ref, cb) => ref.onSnapshot(cb),
+            collection:               (db, ...path) => db.collection(path.join('/')),
+            query:                    (ref, ...constraints) => { let q = ref; constraints.forEach(c => { q = c(q); }); return q; },
+            where:                    (field, op, val) => (ref) => ref.where(field, op, val),
+            getDocs:                  (ref) => ref.get(),
+            writeBatch:               (db) => db.batch(),
         };
     </script>
 
@@ -134,7 +140,7 @@ ${message}
                 }
 
                 // ESTO ES LO CORRECTO (Usa 'firebaseModules' que es donde guardaste todo arriba)
-                const db = window.firebaseModules.db;
+                const db = window.firebaseApp.db;
                 const publicDataPath = `artifacts/${appId}/public/data`;
                 const collections = ['tournaments', 'leagues', 'teams', 'players', 'matches'];
                 const setFunctions = { 
@@ -910,7 +916,7 @@ ${message}
 
                             if (teamIds.length > 0) {
                                 const playersQuery = query(collection(db, `artifacts/${appId}/public/data/players`), where("teamId", "in", teamIds));
-                                const playersSnapshot = await getDocs(playersSnapshot);
+                                const playersSnapshot = await getDocs(playersQuery);
                                 await Promise.all(playersSnapshot.docs.map(d => deleteDoc(d.ref)));
                             }
                             await Promise.all(teamsSnapshot.docs.map(d => deleteDoc(d.ref)));
