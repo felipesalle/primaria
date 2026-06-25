@@ -133,7 +133,8 @@ ${message}
                     return;
                 }
 
-                const db = window.firebaseApp.db;
+                // ESTO ES LO CORRECTO (Usa 'firebaseModules' que es donde guardaste todo arriba)
+                const db = window.firebaseModules.db;
                 const publicDataPath = `artifacts/${appId}/public/data`;
                 const collections = ['tournaments', 'leagues', 'teams', 'players', 'matches'];
                 const setFunctions = { 
