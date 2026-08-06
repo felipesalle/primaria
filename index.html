@@ -2209,114 +2209,131 @@ ${message}
             }
 
             const StandingsView = ({ onViewTeamDetails }) => {
-                const activeLeague = visibleLeagues.find(l => l.id === selectedStandingsLeagueFilter) || visibleLeagues[0];
-                const activeSport = activeLeague ? activeLeague.sport : 'Fútbol';
+                const isFiltered = Boolean(selectedStandingsLeagueFilter);
+                const activeLeague = visibleLeagues.find(l => l.id === selectedStandingsLeagueFilter);
+                
+                const availableSports = Array.from(new Set(visibleLeagues.map(l => l.sport || 'Fútbol')));
+                const sportsToDisplay = isFiltered && activeLeague
+                    ? [activeLeague.sport]
+                    : (availableSports.length > 0 ? availableSports : ['Fútbol', 'Básquetbol']);
 
                 const sportGradients = {
-                    'Fútbol': 'from-blue-700 via-indigo-800 to-slate-900',
-                    'Básquetbol': 'from-amber-600 via-orange-700 to-slate-900',
-                    'Tocho': 'from-emerald-700 via-teal-800 to-slate-900',
-                    'Voleibol': 'from-purple-700 via-violet-800 to-slate-900'
+                    'Fútbol': 'from-emerald-800 via-teal-900 to-slate-950 shadow-emerald-900/30',
+                    'Básquetbol': 'from-amber-600 via-orange-700 to-slate-950 shadow-orange-900/30',
+                    'Tocho': 'from-teal-700 via-emerald-800 to-slate-950 shadow-teal-900/30',
+                    'Voleibol': 'from-purple-700 via-violet-900 to-slate-950 shadow-purple-900/30'
                 };
 
                 const sportEmojis = { 'Fútbol': '⚽️', 'Básquetbol': '🏀', 'Tocho': '🏈', 'Voleibol': '🏐' };
 
-                // Calculate Stats (Filtered by selected league if active, or global if not)
-                const targetLeagues = selectedStandingsLeagueFilter
-                    ? visibleLeagues.filter(l => l.id === selectedStandingsLeagueFilter)
-                    : visibleLeagues;
+                const renderBannerForSport = (sport) => {
+                    const sportLeagues = isFiltered
+                        ? visibleLeagues.filter(l => l.id === selectedStandingsLeagueFilter)
+                        : visibleLeagues.filter(l => (l.sport || 'Fútbol') === sport);
 
-                const targetLeagueIds = targetLeagues.map(l => l.id);
-                const targetMatches = visibleMatches.filter(m => targetLeagueIds.includes(m.leagueId));
+                    const sportLeagueIds = sportLeagues.map(l => l.id);
+                    const sportMatches = visibleMatches.filter(m => sportLeagueIds.includes(m.leagueId));
 
-                const targetStandings = targetLeagues.flatMap(l => calculateStandings(l.id, visibleTeams, visibleMatches));
-                let topTeamText = '-';
-                let topTeamPtsText = 'Sin datos';
+                    const sportStandings = sportLeagues.flatMap(l => calculateStandings(l.id, visibleTeams, visibleMatches));
+                    let topTeamText = '-';
+                    let topTeamPtsText = 'Sin datos';
 
-                if (targetStandings.length > 0) {
-                    const sortedStandings = [...targetStandings].sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference);
-                    const maxPoints = sortedStandings[0].points;
-                    const maxDiff = sortedStandings[0].goalDifference;
-                    const topTeams = sortedStandings.filter(t => t.points === maxPoints && t.goalDifference === maxDiff);
-                    topTeamText = topTeams.map(t => t.teamName).join(', ');
-                    topTeamPtsText = `${maxPoints} Pts`;
-                }
+                    if (sportStandings.length > 0) {
+                        const sortedStandings = [...sportStandings].sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference);
+                        const maxPoints = sortedStandings[0].points;
+                        const maxDiff = sortedStandings[0].goalDifference;
+                        if (maxPoints > 0 || sortedStandings.some(t => t.played > 0)) {
+                            const topTeams = sortedStandings.filter(t => t.points === maxPoints && t.goalDifference === maxDiff);
+                            topTeamText = topTeams.map(t => t.teamName).join(', ');
+                            topTeamPtsText = `${maxPoints} Pts`;
+                        }
+                    }
 
-                const targetScorers = targetLeagues.flatMap(l => calculateTopScorers(l.id, visibleMatches, visiblePlayers, visibleTeams));
-                let topScorerText = '-';
-                let topScorerGoalsText = 'Sin datos';
+                    const sportScorers = sportLeagues.flatMap(l => calculateTopScorers(l.id, visibleMatches, visiblePlayers, visibleTeams));
+                    let topScorerText = '-';
+                    let topScorerGoalsText = 'Sin datos';
+                    const currentTerms = getSportTerms(sport);
 
-                if (targetScorers.length > 0) {
-                    const sortedScorers = [...targetScorers].sort((a, b) => b.goals - a.goals);
-                    const maxGoals = sortedScorers[0].goals;
-                    const topScorersList = sortedScorers.filter(s => s.goals === maxGoals);
-                    topScorerText = topScorersList.map(s => s.playerName).join(', ');
-                    topScorerGoalsText = `${maxGoals} ${getSportTerms(activeSport).scorerHeader.toLowerCase()}`;
-                }
+                    if (sportScorers.length > 0) {
+                        const sortedScorers = [...sportScorers].sort((a, b) => b.goals - a.goals);
+                        const maxGoals = sortedScorers[0].goals;
+                        if (maxGoals > 0) {
+                            const topScorersList = sortedScorers.filter(s => s.goals === maxGoals);
+                            topScorerText = topScorersList.map(s => s.playerName).join(', ');
+                            topScorerGoalsText = `${maxGoals} ${currentTerms.scorerHeader.toLowerCase()}`;
+                        }
+                    }
 
-                const totalPlayedMatches = targetMatches.filter(m => m.scoreHome !== null).length;
-                const totalPointsScored = targetMatches.filter(m => m.scoreHome !== null).reduce((sum, m) => sum + (m.scoreHome || 0) + (m.scoreAway || 0), 0);
+                    const totalPlayedMatches = sportMatches.filter(m => m.scoreHome !== null).length;
+                    const totalPointsScored = sportMatches.filter(m => m.scoreHome !== null).reduce((sum, m) => sum + (m.scoreHome || 0) + (m.scoreAway || 0), 0);
 
-                const isFiltered = Boolean(selectedStandingsLeagueFilter);
-                const currentTerms = getSportTerms(activeSport);
-                const leaderLabel = isFiltered ? "👑 Líder de Liga" : "👑 Líder del Torneo";
-                const scorerLabel = isFiltered ? `🎯 ${currentTerms.scorerSingular} de Liga` : `🎯 Líder ${currentTerms.scorerSingular}`;
+                    const leaderLabel = isFiltered ? "👑 Líder de Liga" : `👑 Líder ${sport}`;
+                    const scorerLabel = isFiltered ? `🎯 ${currentTerms.scorerSingular} de Liga` : `🎯 Líder ${currentTerms.scorerSingular}`;
 
-                return (
-                    <div className="space-y-6">
-                        {/* --- Hero Banner Dinámico por Deporte --- */}
-                        <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${sportGradients[activeSport] || sportGradients['Fútbol']} p-8 text-white shadow-2xl transition-all duration-700`}>
-                            <div className="absolute -right-10 -bottom-10 text-9xl opacity-20 pointer-events-none animate-float">
-                                {sportEmojis[activeSport] || '🏆'}
+                    return (
+                        <div key={sport} className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${sportGradients[sport] || sportGradients['Fútbol']} p-6 sm:p-8 text-white shadow-2xl transition-all duration-500`}>
+                            <div className="absolute -right-8 -bottom-8 text-8xl sm:text-9xl opacity-20 pointer-events-none animate-float">
+                                {sportEmojis[sport] || '🏆'}
                             </div>
-                            <div className="absolute right-1/4 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-glow pointer-events-none"></div>
+                            <div className="absolute right-1/4 top-0 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                            <div className="relative z-10 max-w-3xl space-y-4">
+                            <div className="relative z-10 space-y-3">
                                 <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-white border border-white/20">
-                                    <span>{sportEmojis[activeSport]} Sports Hub Pro</span>
+                                    <span>{sportEmojis[sport]} {sport}</span>
                                     <span>•</span>
-                                    <span>{activeLeague ? activeLeague.name : activeSport}</span>
+                                    <span>{isFiltered && activeLeague ? activeLeague.name : 'Sports Hub Pro'}</span>
                                 </div>
-                                <h1 className="text-4xl sm:text-5xl font-black font-outfit tracking-tight leading-tight">
-                                    Torneos Deportivos <span className="text-amber-300">Primaria</span>
-                                </h1>
-                                <p className="text-blue-100 text-sm sm:text-base max-w-xl">
-                                    Sigue la tabla de clasificación, resultados en vivo y tabla de {currentTerms.scorerPlural.toLowerCase()} oficiales de La Salle.
+                                <h2 className="text-3xl sm:text-4xl font-black font-outfit tracking-tight leading-tight">
+                                    Torneo de <span className="text-amber-300">{sport}</span>
+                                </h2>
+                                <p className="text-blue-100 text-xs sm:text-sm max-w-md">
+                                    Clasificación, resultados en vivo y tabla de {currentTerms.scorerPlural.toLowerCase()} oficiales.
                                 </p>
-
-                                {tournaments.length > 0 && (
-                                    <div className="pt-2 flex flex-wrap items-center gap-3">
-                                        <label className="text-xs font-semibold text-blue-200 uppercase tracking-wider">Torneo Activo:</label>
-                                        <select value={selectedTournamentId} onChange={(e) => setSelectedTournamentId(e.target.value)} className="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl px-4 py-2 text-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
-                                            {tournaments.map(t => <option key={t.id} value={t.id} className="text-gray-900">{t.name}</option>)}
-                                        </select>
-                                    </div>
-                                )}
                             </div>
 
                             {/* --- Quick Stats Counter --- */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-white/10 relative z-10">
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 hover:bg-white/20 transition-all">
-                                    <p className="text-xs text-blue-200 font-semibold uppercase tracking-wider">{leaderLabel}</p>
-                                    <p className="text-lg font-bold truncate mt-1" title={topTeamText}>{topTeamText}</p>
+                            <div className="grid grid-cols-2 gap-3 mt-6 pt-5 border-t border-white/15 relative z-10">
+                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 hover:bg-white/20 transition-all">
+                                    <p className="text-[11px] text-blue-100 font-semibold uppercase tracking-wider">{leaderLabel}</p>
+                                    <p className="text-base font-bold truncate mt-0.5" title={topTeamText}>{topTeamText}</p>
                                     <p className="text-xs text-amber-300 font-mono mt-0.5">{topTeamPtsText}</p>
                                 </div>
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 hover:bg-white/20 transition-all">
-                                    <p className="text-xs text-blue-200 font-semibold uppercase tracking-wider">{scorerLabel}</p>
-                                    <p className="text-lg font-bold truncate mt-1" title={topScorerText}>{topScorerText}</p>
+                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 hover:bg-white/20 transition-all">
+                                    <p className="text-[11px] text-blue-100 font-semibold uppercase tracking-wider">{scorerLabel}</p>
+                                    <p className="text-base font-bold truncate mt-0.5" title={topScorerText}>{topScorerText}</p>
                                     <p className="text-xs text-amber-300 font-mono mt-0.5">{topScorerGoalsText}</p>
                                 </div>
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 hover:bg-white/20 transition-all">
-                                    <p className="text-xs text-blue-200 font-semibold uppercase tracking-wider">🏟️ Partidos Jugados</p>
-                                    <p className="text-2xl font-black mt-0.5">{totalPlayedMatches}</p>
-                                    <p className="text-xs text-blue-200 mt-0.5">{isFiltered ? 'En la liga seleccionada' : 'Encuentros concluidos'}</p>
+                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 hover:bg-white/20 transition-all">
+                                    <p className="text-[11px] text-blue-100 font-semibold uppercase tracking-wider">🏟️ Partidos</p>
+                                    <p className="text-xl font-black mt-0.5">{totalPlayedMatches}</p>
+                                    <p className="text-[11px] text-blue-100 mt-0.5">{isFiltered ? 'En esta liga' : 'Jugados'}</p>
                                 </div>
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 hover:bg-white/20 transition-all">
-                                    <p className="text-xs text-blue-200 font-semibold uppercase tracking-wider">⚡ {currentTerms.scorerHeader} Totales</p>
-                                    <p className="text-2xl font-black mt-0.5">{totalPointsScored}</p>
-                                    <p className="text-xs text-blue-200 mt-0.5">{isFiltered ? 'Anotaciones en la liga' : 'Anotaciones del torneo'}</p>
+                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 hover:bg-white/20 transition-all">
+                                    <p className="text-[11px] text-blue-100 font-semibold uppercase tracking-wider">⚡ {currentTerms.scorerHeader}</p>
+                                    <p className="text-xl font-black mt-0.5">{totalPointsScored}</p>
+                                    <p className="text-[11px] text-blue-100 mt-0.5">{currentTerms.scorerHeader} en {sport}</p>
                                 </div>
                             </div>
+                        </div>
+                    );
+                };
+
+                return (
+                    <div className="space-y-6">
+                        {tournaments.length > 0 && (
+                            <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-lg">🏆</span>
+                                    <label className="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider">Torneo Activo:</label>
+                                </div>
+                                <select value={selectedTournamentId} onChange={(e) => setSelectedTournamentId(e.target.value)} className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2 text-gray-900 dark:text-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-[#101097]">
+                                    {tournaments.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                </select>
+                            </div>
+                        )}
+
+                        <div className={`grid grid-cols-1 ${sportsToDisplay.length > 1 ? 'lg:grid-cols-2' : ''} gap-6`}>
+                            {sportsToDisplay.map(sport => renderBannerForSport(sport))}
                         </div>
 
                         {tournaments.length === 0 && (
