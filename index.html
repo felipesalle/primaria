@@ -195,7 +195,7 @@ ${message}
                         if (col === 'tournaments') {
                             data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                             setFunctions.tournaments(data);
-                            if (data.length > 0 && !selectedTournamentId) {
+                            if (data.length > 0 && (!selectedTournamentId || !data.some(t => t.id === selectedTournamentId))) {
                                 setSelectedTournamentId(data[0].id);
                             }
                         } else {
@@ -209,11 +209,32 @@ ${message}
                 return () => unsubscribers.forEach(unsub => unsub());
             }, [appId, isAuthReady, selectedTournamentId]);
 
+            const getMatchBadge = (matchDate, stage) => {
+                if (stage === 'semifinal') {
+                    return <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-orange-100 dark:bg-orange-900/60 text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-700 shadow-sm">🔥 Semifinal</span>;
+                }
+                if (stage === 'third_place') {
+                    return <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-sm">🥉 3er Lugar</span>;
+                }
+                if (stage === 'final') {
+                    return <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-700 shadow-sm">👑 Gran Final</span>;
+                }
+
+                const activeTournament = tournaments.find(t => t.id === selectedTournamentId);
+                if (!activeTournament?.inaugurationDate || matchDate < activeTournament.inaugurationDate) {
+                    return <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-sm">🤝 Amistoso</span>;
+                }
+                if (matchDate === activeTournament.inaugurationDate) {
+                    return <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-700 shadow-sm">🎉 Inauguración Oficial</span>;
+                }
+                return <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-sm">🏆 Oficial</span>;
+            };
+
             const value = {
                 tournaments, selectedTournamentId, setSelectedTournamentId,
                 leagues, teams, players, matches,
                 isLoading, setIsLoading,
-                appId, user
+                appId, user, getMatchBadge
             };
 
             return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
@@ -361,6 +382,7 @@ ${message}
         };
 
         const ResultsList = ({ matches, getTeamName, getTeamLogo, onMatchClick, onViewTeamDetails }) => {
+            const { getMatchBadge } = useData();
             const recentMatches = matches.filter(m => m.scoreHome !== null).sort((a, b) => new Date(b.date) - new Date(a.date));
             if (recentMatches.length === 0) {
                 return <p className="text-center text-sm text-gray-500 dark:text-gray-400 py-4">No hay resultados recientes.</p>;
@@ -369,7 +391,10 @@ ${message}
                 <div className="space-y-3 mt-4">
                     {recentMatches.map(match => (
                         <div key={match.id} onClick={() => onMatchClick(match)} className="bg-white dark:bg-gray-800/70 p-3 rounded-lg hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 shadow-md">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(match.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>{new Date(match.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                {getMatchBadge && getMatchBadge(match.date)}
+                            </div>
                             <div className="flex items-center justify-between mt-1">
                                 <div className="flex-1 text-sm font-bold flex items-center cursor-pointer" onClick={() => onViewTeamDetails(match.homeTeamId)}>
                                     <img src={getTeamLogo(match.homeTeamId)} referrerPolicy="no-referrer" className="w-5 h-5 rounded-full mr-2 shadow-sm object-contain bg-white" onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getTeamName(match.homeTeamId))}&background=101097&color=fff&rounded=true`; }} />
@@ -639,6 +664,8 @@ ${message}
         };
 
         const InteractiveCalendarWidget = ({ matches, selectedDateFilter, onSelectDate }) => {
+            const { tournaments, selectedTournamentId } = useData();
+            const activeTournament = tournaments.find(t => t.id === selectedTournamentId);
             const matchDates = matches.map(m => m.date).filter(Boolean).sort();
             const initialDateStr = selectedDateFilter || (matchDates.length > 0 ? matchDates[0] : formatLocalDate(new Date()));
             
@@ -705,7 +732,7 @@ ${message}
                             <span className="text-xl">🗓️</span>
                             <div>
                                 <h4 className="text-base font-bold font-outfit text-gray-900 dark:text-white">Calendario Interactivo de Jornadas</h4>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400">Haz clic en cualquier fecha destacada en azul para filtrar los partidos.</p>
+                                <p className="text-[11px] text-gray-500 dark:text-gray-400">Haz clic en cualquier fecha destacada para filtrar los partidos de esa jornada.</p>
                             </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -745,6 +772,26 @@ ${message}
                             const isSelected = selectedDateFilter === dateString;
                             const hasMatches = matchCount > 0;
 
+                            const isFriendly = !activeTournament?.inaugurationDate || dateString < activeTournament.inaugurationDate;
+                            const isInauguration = activeTournament?.inaugurationDate && dateString === activeTournament.inaugurationDate;
+
+                            let bgStyle = 'bg-gradient-to-br from-blue-600 to-[#101097] text-white';
+                            let badgeStyle = 'bg-white/25 text-white';
+                            let dateTag = '';
+
+                            if (isFriendly) {
+                                bgStyle = 'bg-gradient-to-br from-amber-500 to-amber-700 text-white';
+                                dateTag = '🤝 ';
+                            } else if (isInauguration) {
+                                bgStyle = 'bg-gradient-to-br from-purple-600 to-indigo-800 text-white';
+                                dateTag = '🎉 ';
+                            }
+
+                            if (isSelected) {
+                                bgStyle = 'bg-[#101097] text-white shadow-md ring-2 ring-amber-400 font-black z-10 scale-105';
+                                badgeStyle = 'bg-amber-400 text-gray-900';
+                            }
+
                             return (
                                 <button
                                     key={dateString}
@@ -756,15 +803,17 @@ ${message}
                                     disabled={!hasMatches}
                                     className={`h-10 sm:h-11 rounded-xl flex flex-col items-center justify-center relative transition-all duration-150 p-0.5 ${
                                         hasMatches
-                                            ? isSelected
-                                                ? 'bg-[#101097] text-white shadow-md ring-2 ring-amber-400 font-black z-10 scale-105'
-                                                : 'bg-gradient-to-br from-blue-600 to-[#101097] text-white shadow-sm hover:scale-105 hover:shadow font-bold cursor-pointer'
+                                            ? `${bgStyle} shadow-sm hover:scale-105 hover:shadow font-bold cursor-pointer`
                                             : 'bg-gray-50 dark:bg-gray-700/30 text-gray-400 dark:text-gray-500 cursor-default opacity-50'
                                     }`}
+                                    title={hasMatches ? `${dateTag}${dateString}: ${matchCount} partido(s)` : ''}
                                 >
-                                    <span className="text-xs sm:text-sm leading-none">{day}</span>
+                                    <span className="text-xs sm:text-sm leading-none flex items-center justify-center">
+                                        {hasMatches && dateTag && <span className="text-[10px] mr-0.5">{dateTag}</span>}
+                                        {day}
+                                    </span>
                                     {hasMatches && (
-                                        <span className={`text-[9px] px-1 py-0 rounded-full mt-0.5 font-extrabold leading-tight ${isSelected ? 'bg-amber-400 text-gray-900' : 'bg-white/25 text-white'}`}>
+                                        <span className={`text-[9px] px-1 py-0 rounded-full mt-0.5 font-extrabold leading-tight ${badgeStyle}`}>
                                             {matchCount} {matchCount === 1 ? 'partido' : 'partidos'}
                                         </span>
                                     )}
@@ -773,25 +822,23 @@ ${message}
                         })}
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 pt-1.5 border-t dark:border-gray-700">
-                        <div className="flex items-center space-x-1.5">
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#101097] inline-block"></span>
-                            <span>Días con partidos programados</span>
+                    <div className="flex flex-wrap items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 pt-2 border-t dark:border-gray-700 gap-2">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <span className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400"><span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> 🤝 Amistoso</span>
+                            <span className="flex items-center gap-1 font-bold text-purple-600 dark:text-purple-400"><span className="w-2.5 h-2.5 rounded-full bg-purple-600 inline-block"></span> 🎉 Inauguración</span>
+                            <span className="flex items-center gap-1 font-bold text-[#101097] dark:text-blue-400"><span className="w-2.5 h-2.5 rounded-full bg-[#101097] inline-block"></span> 🏆 Oficial</span>
                         </div>
-                        {selectedDateFilter && (
-                            <span className="font-semibold text-[#101097] dark:text-blue-300">
-                                Filtrando fecha: <b>{selectedDateFilter}</b>
-                            </span>
-                        )}
                     </div>
                 </div>
             );
         };
 
         const MatchesView = ({ matches, getTeamName, appId, db, showMessage, leagues, teams, players, getLeagueName, getPlayersByTeam, selectedDateFilter, selectedLeagueFilter }) => {
+            const { getMatchBadge, tournaments, selectedTournamentId } = useData();
             const [selectedMatch, setSelectedMatch] = useState(null);
             const [scoreHome, setScoreHome] = useState(0);
             const [scoreAway, setScoreAway] = useState(0);
+            const [penaltyWinnerId, setPenaltyWinnerId] = useState('');
             const [scorers, setScorers] = useState([]);
             const [isEditing, setIsEditing] = useState(false);
 
@@ -799,22 +846,104 @@ ${message}
                 setSelectedMatch(match);
                 setScoreHome(match.scoreHome !== null ? match.scoreHome : 0);
                 setScoreAway(match.scoreAway !== null ? match.scoreAway : 0);
+                setPenaltyWinnerId(match.penaltyWinnerId || '');
                 setScorers(match.scorers || []);
                 setIsEditing(true);
+            };
+
+            const updatePlayoffFinalists = async (leagueId) => {
+                try {
+                    const { collection, getDocs, query, where, doc, updateDoc } = window.firebaseModules;
+                    const matchesRef = collection(db, `artifacts/${appId}/public/data/matches`);
+                    const q = query(matchesRef, where("leagueId", "==", leagueId));
+                    const snap = await getDocs(q);
+                    const leagueMatches = snap.docs.map(d => d.data());
+
+                    const activeTournamentObj = tournaments.find(t => t.id === selectedTournamentId);
+                    const tiebreakerRule = activeTournamentObj?.playoffTiebreakerRule || 'penalties';
+
+                    const sf1 = leagueMatches.find(m => m.playoffKey === 'SF1');
+                    const sf2 = leagueMatches.find(m => m.playoffKey === 'SF2');
+                    const finalMatch = leagueMatches.find(m => m.playoffKey === 'FINAL');
+                    const thirdMatch = leagueMatches.find(m => m.playoffKey === '3RD');
+
+                    if (!finalMatch || !thirdMatch) return;
+
+                    let winnerSF1 = null, loserSF1 = null;
+                    let winnerSF2 = null, loserSF2 = null;
+
+                    if (sf1 && sf1.scoreHome !== null && sf1.scoreAway !== null) {
+                        if (sf1.scoreHome > sf1.scoreAway) {
+                            winnerSF1 = sf1.homeTeamId; loserSF1 = sf1.awayTeamId;
+                        } else if (sf1.scoreAway > sf1.scoreHome) {
+                            winnerSF1 = sf1.awayTeamId; loserSF1 = sf1.homeTeamId;
+                        } else {
+                            if (tiebreakerRule === 'penalties' && sf1.penaltyWinnerId) {
+                                winnerSF1 = sf1.penaltyWinnerId;
+                                loserSF1 = sf1.penaltyWinnerId === sf1.homeTeamId ? sf1.awayTeamId : sf1.homeTeamId;
+                            } else {
+                                winnerSF1 = (sf1.seedHome || 1) <= (sf1.seedAway || 4) ? sf1.homeTeamId : sf1.awayTeamId;
+                                loserSF1 = winnerSF1 === sf1.homeTeamId ? sf1.awayTeamId : sf1.homeTeamId;
+                            }
+                        }
+                    }
+
+                    if (sf2 && sf2.scoreHome !== null && sf2.scoreAway !== null) {
+                        if (sf2.scoreHome > sf2.scoreAway) {
+                            winnerSF2 = sf2.homeTeamId; loserSF2 = sf2.awayTeamId;
+                        } else if (sf2.scoreAway > sf2.scoreHome) {
+                            winnerSF2 = sf2.awayTeamId; loserSF2 = sf2.homeTeamId;
+                        } else {
+                            if (tiebreakerRule === 'penalties' && sf2.penaltyWinnerId) {
+                                winnerSF2 = sf2.penaltyWinnerId;
+                                loserSF2 = sf2.penaltyWinnerId === sf2.homeTeamId ? sf2.awayTeamId : sf2.homeTeamId;
+                            } else {
+                                winnerSF2 = (sf2.seedHome || 2) <= (sf2.seedAway || 3) ? sf2.homeTeamId : sf2.awayTeamId;
+                                loserSF2 = winnerSF2 === sf2.homeTeamId ? sf2.awayTeamId : sf2.homeTeamId;
+                            }
+                        }
+                    }
+
+                    if (winnerSF1 && winnerSF2) {
+                        await updateDoc(doc(db, `artifacts/${appId}/public/data/matches`, finalMatch.id), {
+                            homeTeamId: winnerSF1,
+                            awayTeamId: winnerSF2
+                        });
+                    }
+                    if (loserSF1 && loserSF2) {
+                        await updateDoc(doc(db, `artifacts/${appId}/public/data/matches`, thirdMatch.id), {
+                            homeTeamId: loserSF1,
+                            awayTeamId: loserSF2
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error updating playoff finalists:", e);
+                }
             };
 
             const handleSaveMatch = async () => {
                 if (!selectedMatch) return;
                 try {
                     const { doc, setDoc } = window.firebaseModules;
-                    await setDoc(doc(db, `artifacts/${appId}/public/data/matches`, selectedMatch.id), {
+                    const parsedScoreHome = parseInt(scoreHome, 10);
+                    const parsedScoreAway = parseInt(scoreAway, 10);
+
+                    const matchDataToSave = {
                         ...selectedMatch,
-                        scoreHome: parseInt(scoreHome, 10),
-                        scoreAway: parseInt(scoreAway, 10),
+                        scoreHome: parsedScoreHome,
+                        scoreAway: parsedScoreAway,
                         scorers,
-                    });
+                        penaltyWinnerId: (parsedScoreHome === parsedScoreAway && penaltyWinnerId) ? penaltyWinnerId : null
+                    };
+
+                    await setDoc(doc(db, `artifacts/${appId}/public/data/matches`, selectedMatch.id), matchDataToSave);
                     setIsEditing(false);
                     setSelectedMatch(null);
+
+                    if (selectedMatch.stage) {
+                        await updatePlayoffFinalists(selectedMatch.leagueId);
+                    }
+
                     showMessage("Partido actualizado con éxito.");
 
                     // --- Create detailed Telegram message ---
@@ -944,7 +1073,23 @@ ${message}
                                     </div>
                                 ))}
                             </div>
-                            <div className="flex justify-end space-x-2 pt-4 border-t dark:border-gray-700">
+                                {selectedMatch.stage && parseInt(scoreHome, 10) === parseInt(scoreAway, 10) && (
+                                    <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-xl border border-purple-200 dark:border-purple-800 space-y-1.5 mt-3">
+                                        <label className="block text-xs font-bold text-purple-900 dark:text-purple-300 uppercase tracking-wider">
+                                            🥅 Definición por Penales (Marcador Empatado):
+                                        </label>
+                                        <select
+                                            value={penaltyWinnerId}
+                                            onChange={(e) => setPenaltyWinnerId(e.target.value)}
+                                            className="w-full p-2 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-gray-700 text-sm font-bold text-gray-900 dark:text-white"
+                                        >
+                                            <option value="">-- Seleccionar Ganador en Penales --</option>
+                                            <option value={selectedMatch.homeTeamId}>Gana {getTeamName(selectedMatch.homeTeamId)} en Penales</option>
+                                            <option value={selectedMatch.awayTeamId}>Gana {getTeamName(selectedMatch.awayTeamId)} en Penales</option>
+                                        </select>
+                                    </div>
+                                )}
+                                <div className="flex justify-end space-x-2 pt-4 border-t dark:border-gray-700">
                                 <button onClick={handleNullifyMatch} className="btn-danger">Anular (0-0)</button>
                                 <button onClick={() => setIsEditing(false)} className="py-2 px-5 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white font-semibold rounded-lg shadow-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-300">Cancelar</button>
                                 <button onClick={handleSaveMatch} className="btn-primary">Guardar Cambios</button>
@@ -962,7 +1107,10 @@ ${message}
                                                 <SportIcon sport={leagues.find(l => l.id === match.leagueId)?.sport} />
                                                 {getLeagueName(match.leagueId)}
                                             </p>
-                                            <p className="text-gray-500 dark:text-gray-400 text-sm">{match.date}</p>
+                                            <p className="text-gray-500 dark:text-gray-400 text-sm flex items-center">
+                                                <span>{match.date}</span>
+                                                {getMatchBadge && getMatchBadge(match.date, match.stage)}
+                                            </p>
                                             <p className="text-gray-900 dark:text-white font-bold text-xl mt-1">
                                                 {getTeamName(match.homeTeamId)} vs {getTeamName(match.awayTeamId)}
                                             </p>
@@ -1089,13 +1237,15 @@ ${message}
             const [upcomingMatchesDate, setUpcomingMatchesDate] = useState('');
             const [refereeMatchDate, setRefereeMatchDate] = useState('');
             const [scheduleStartDate, setScheduleStartDate] = useState('');
-            const [scheduleEndDate, setScheduleEndDate] = useState('');
             const [matchDetails, setMatchDetails] = useState(null);
             const [editingTeam, setEditingTeam] = useState(null);
             const [addingPlayersTeam, setAddingPlayersTeam] = useState(null);
             const [postponeMatchDate, setPostponeMatchDate] = useState('');
             const [selectedTeamIdForDetail, setSelectedTeamIdForDetail] = useState(null);
             const [rosterSport, setRosterSport] = useState('');
+            const [playoffsSemifinalDate, setPlayoffsSemifinalDate] = useState('');
+            const [playoffsFinalsDate, setPlayoffsFinalsDate] = useState('');
+            const [playoffTiebreakerRule, setPlayoffTiebreakerRule] = useState('penalties');
 
             const handleViewTeamDetails = (teamId) => {
                 setSelectedTeamIdForDetail(teamId);
@@ -1123,7 +1273,19 @@ ${message}
                 const { doc, updateDoc } = window.firebaseModules;
                 try {
                     await updateDoc(doc(window.firebaseApp.db, `artifacts/${appId}/public/data/leagues`, leagueId), { theme });
-                    showMessage(`Temática de equipos actualizada a "${theme}".`);
+                    
+                    const presetList = PRESET_THEMES[theme];
+                    if (presetList) {
+                        const leagueTeams = teams.filter(t => t.leagueId === leagueId);
+                        for (let i = 0; i < leagueTeams.length; i++) {
+                            const preset = presetList[i % presetList.length];
+                            await updateDoc(doc(window.firebaseApp.db, `artifacts/${appId}/public/data/teams`, leagueTeams[i].id), {
+                                name: preset.name,
+                                logoUrl: preset.logoUrl
+                            });
+                        }
+                    }
+                    showMessage(`Temática y equipos actualizados a "${theme}".`);
                 } catch (e) { console.error("Error updating theme:", e); showMessage("Error al actualizar la temática."); }
             };
 
@@ -1301,6 +1463,13 @@ ${message}
 
                         await deleteDoc(doc(db, `artifacts/${appId}/public/data/tournaments`, selectedTournamentId));
 
+                        const remainingTournaments = tournaments.filter(t => t.id !== selectedTournamentId);
+                        if (remainingTournaments.length > 0) {
+                            setSelectedTournamentId(remainingTournaments[0].id);
+                        } else {
+                            setSelectedTournamentId('');
+                        }
+
                         showMessage("Torneo eliminado con éxito.");
                     } catch (e) {
                         console.error("Error deleting tournament:", e);
@@ -1308,6 +1477,42 @@ ${message}
                     } finally {
                         setIsLoading(false);
                     }
+                }
+            };
+
+            const handleUpdateInaugurationDate = async (newInaugurationDate) => {
+                if (!user || !appId || !selectedTournamentId) return;
+                const { doc, updateDoc, writeBatch } = window.firebaseModules;
+                try {
+                    const db = window.firebaseApp.db;
+                    await updateDoc(doc(db, `artifacts/${appId}/public/data/tournaments`, selectedTournamentId), { inaugurationDate: newInaugurationDate });
+
+                    if (visibleMatches.length > 0) {
+                        const batch = writeBatch(db);
+                        let updatedCount = 0;
+
+                        if (newInaugurationDate) {
+                            const targetObj = parseLocalDate(newInaugurationDate);
+                            visibleMatches.forEach(m => {
+                                const matchDateObj = parseLocalDate(m.date);
+                                const diffMs = Math.abs(matchDateObj.getTime() - targetObj.getTime());
+                                const diffDays = diffMs / (1000 * 60 * 60 * 24);
+                                if (diffDays <= 4 && m.date !== newInaugurationDate) {
+                                    batch.update(doc(db, `artifacts/${appId}/public/data/matches`, m.id), { date: newInaugurationDate });
+                                    updatedCount++;
+                                }
+                            });
+                        }
+
+                        if (updatedCount > 0) {
+                            await batch.commit();
+                        }
+                    }
+
+                    showMessage(newInaugurationDate ? `Fecha de inauguración deportiva establecida: ${newInaugurationDate}` : "Fecha de inauguración eliminada.");
+                } catch (e) {
+                    console.error("Error updating inauguration date:", e);
+                    showMessage("Error al guardar la fecha de inauguración.");
                 }
             };
 
@@ -1340,6 +1545,15 @@ ${message}
                 const { db } = window.firebaseApp;
                 const { collection, doc, setDoc } = window.firebaseModules;
                 
+                const defaultThemes = {
+                    "Futbol 1ro y 2do de Primaria": "Liga MX",
+                    "Futbol 3ro y 4to de Primaria": "Premier League",
+                    "Futbol 5to y 6to de Primaria": "LaLiga Española",
+                    "Basquetbol 1ro y 2do de Primaria": "Estados de México",
+                    "Basquetbol 3ro y 4to de Primaria": "Equipos NBA",
+                    "Basquetbol 5to y 6to de Primaria": "Selecciones (Países)",
+                };
+
                 const leaguesData = [
                     { name: "Futbol 1ro y 2do de Primaria", sport: "Fútbol", grades: "1ro y 2do", matchTime: "9:00-10:00" },
                     { name: "Basquetbol 1ro y 2do de Primaria", sport: "Básquetbol", grades: "1ro y 2do", matchTime: "9:00-10:00" },
@@ -1357,58 +1571,17 @@ ${message}
 
                     for (const leagueData of leaguesData) {
                         const leagueId = crypto.randomUUID();
+                        const theme = defaultThemes[leagueData.name] || "Liga MX";
                         await setDoc(doc(db, `artifacts/${appId}/public/data/leagues`, leagueId), { 
                             id: leagueId, 
                             tournamentId,
+                            theme,
                             matchDay: 5, // Default to Friday
                             ...leagueData 
                         });
-                        const teamLogos = {
-                            "Futbol 1ro y 2do de Primaria": [
-                                { name: "Club América", logo: "https://i.imgur.com/FE5b9iT.png" },
-                                { name: "Chivas Guadalajara", logo: "https://i.imgur.com/gJ6Z2p3.png" },
-                                { name: "Cruz Azul", logo: "https://i.imgur.com/Lnd22F2.png" },
-                                { name: "Tigres UANL", logo: "https://i.imgur.com/c055j4g.png" },
-                            ],
-                            "Futbol 3ro y 4to de Primaria": [
-                                { name: "Manchester United", logo: "https://i.imgur.com/1c4so0J.png" },
-                                { name: "Liverpool FC", logo: "https://i.imgur.com/Yf2jO2j.png" },
-                                { name: "Chelsea FC", logo: "https://i.imgur.com/dAnm9nU.png" },
-                                { name: "Arsenal FC", logo: "https://i.imgur.com/m0t2Gz4.png" },
-                            ],
-                            "Futbol 5to y 6to de Primaria": [
-                                { name: "Real Madrid", logo: "https://i.imgur.com/J3Jp4p4.png" },
-                                { name: "FC Barcelona", logo: "https://i.imgur.com/N414Q4F.png" },
-                                { name: "Atletico Madrid", logo: "https://i.imgur.com/i4u3TfC.png" },
-                                { name: "Valencia CF", logo: "https://i.imgur.com/d3j3j3j.png" },
-                            ],
-                            "Basquetbol 1ro y 2do de Primaria": [
-                                { name: "Chiapas", logo: "https://i.imgur.com/6y6y6y6.png" },
-                                { name: "Monterrey", logo: "https://i.imgur.com/7z7z7z7.png" },
-                                { name: "Jalisco", logo: "https://i.imgur.com/8x8x8x8.png" },
-                                { name: "Cd Mexico", logo: "https://i.imgur.com/9y9y9y9.png" },
-                            ],
-                            "Basquetbol 3ro y 4to de Primaria": [
-                                { name: "Dallas", logo: "https://i.imgur.com/A0A0A0A.png" },
-                                { name: "Lakers", logo: "https://i.imgur.com/B1B1B1B.png" },
-                                { name: "Chicago", logo: "https://i.imgur.com/C2C2C2C.png" },
-                                { name: "Toronto", logo: "https://i.imgur.com/D3D3D3D.png" },
-                            ],
-                            "Basquetbol 5to y 6to de Primaria": [
-                                { name: "Brasil", logo: "https://i.imgur.com/E4E4E4E.png" },
-                                { name: "Francia", logo: "https://i.imgur.com/F5F5F5F.png" },
-                                { name: "Mexico", logo: "https://i.imgur.com/G6G6G6G.png" },
-                                { name: "España", logo: "https://i.imgur.com/H7H7H7H.png" },
-                            ],
-                            // Add more for Tocho/Voleibol if needed, or they will use default placeholder
-                        };
 
-                        const teamsToCreate = teamLogos[leagueData.name] || [
-                            { name: "Equipo 1", logo: `https://placehold.co/100x100/A0A0A0/FFF?text=1` },
-                            { name: "Equipo 2", logo: `https://placehold.co/100x100/A0A0A0/FFF?text=2` },
-                            { name: "Equipo 3", logo: `https://placehold.co/100x100/A0A0A0/FFF?text=3` },
-                            { name: "Equipo 4", logo: `https://placehold.co/100x100/A0A0A0/FFF?text=4` },
-                        ];
+                        const presets = PRESET_THEMES[theme] || PRESET_THEMES["Liga MX"];
+                        const teamsToCreate = presets.slice(0, 4);
 
                         for (const teamInfo of teamsToCreate) {
                             const teamId = crypto.randomUUID();
@@ -1416,17 +1589,18 @@ ${message}
                                 id: teamId, 
                                 name: teamInfo.name, 
                                 leagueId,
-                                logoUrl: teamInfo.logo 
+                                logoUrl: teamInfo.logoUrl 
                             });
                         }
                     }
+                    setSelectedTournamentId(tournamentId);
                     showMessage(`Torneo "${tournamentName}" creado con éxito.`);
                 } catch (e) { console.error("Error creating tournament:", e); showMessage("Error al crear el torneo."); }
                 setIsLoading(false);
             };
 
-            const generateSchedule = async (visibleLeagues, visibleTeams, isInitial) => {
-                if (isInitial && !scheduleStartDate) {
+            const generateSchedule = async (visibleLeagues, visibleTeams) => {
+                if (!scheduleStartDate) {
                     showMessage("Selecciona una fecha de inicio para el calendario base.");
                     return;
                 }
@@ -1443,32 +1617,27 @@ ${message}
                 try {
                     const visibleLeagueIds = visibleLeagues.map(l => l.id);
 
-                    if (isInitial) {
-                        const q = query(matchesRef, where("leagueId", "in", visibleLeagueIds));
-                        const existingMatches = await getDocs(q);
-                        await Promise.all(existingMatches.docs.map(matchDoc => deleteDoc(matchDoc.ref)));
-                    }
+                    const q = query(matchesRef, where("leagueId", "in", visibleLeagueIds));
+                    const existingMatches = await getDocs(q);
+                    await Promise.all(existingMatches.docs.map(matchDoc => deleteDoc(matchDoc.ref)));
 
-                    let lastMatchDateStr = null;
-                    if (!isInitial) {
-                        const q = query(matchesRef, where("leagueId", "in", visibleLeagueIds));
-                        const existingMatches = await getDocs(q);
-                        if (!existingMatches.empty) {
-                            const dateStrs = existingMatches.docs.map(d => d.data().date);
-                            dateStrs.sort();
-                            lastMatchDateStr = dateStrs[dateStrs.length - 1];
-                        }
-                    }
-
-                    let currentSchedulingDate = lastMatchDateStr ? parseLocalDate(lastMatchDateStr) : parseLocalDate(scheduleStartDate);
+                    let currentSchedulingDate = parseLocalDate(scheduleStartDate);
 
                     // Adjust to the first valid Friday (day 5)
                     while (currentSchedulingDate.getDay() !== 5) {
                         currentSchedulingDate.setDate(currentSchedulingDate.getDate() + 1);
                     }
 
-                    // Total weeks to cover full school year (September to July = 44 weeks)
-                    const totalWeeksToGenerate = isInitial ? 44 : 10;
+                    // Limit end date to June 30 of the school year
+                    const startYear = currentSchedulingDate.getFullYear();
+                    const startMonth = currentSchedulingDate.getMonth();
+                    const schoolYearEndYear = startMonth >= 6 ? startYear + 1 : startYear;
+                    const maxEndDate = new Date(schoolYearEndYear, 5, 30); // June 30th
+
+                    const activeTournamentObj = tournaments.find(t => t.id === selectedTournamentId);
+                    const inaugurationDateStr = activeTournamentObj?.inaugurationDate || null;
+                    let inaugurationDateObj = inaugurationDateStr ? parseLocalDate(inaugurationDateStr) : null;
+                    let inaugurationWeekHandled = false;
 
                     const leagueOriginalTeams = new Map();
                     visibleLeagues.forEach(league => {
@@ -1477,21 +1646,26 @@ ${message}
                         leagueOriginalTeams.set(league.id, [...teamsForLeague]);
                     });
 
-                    for (let week = 0; week < totalWeeksToGenerate; week++) {
-                        if (week > 0) {
+                    let week = 0;
+                    while (currentSchedulingDate <= maxEndDate) {
+                        // Skip any holiday or CTE date
+                        while (isHolidayOrCTE(formatLocalDate(currentSchedulingDate))) {
                             currentSchedulingDate.setDate(currentSchedulingDate.getDate() + 7);
                         }
 
-                        // Strictly skip any holiday or CTE date
-                        while (isHolidayOrCTE(formatLocalDate(currentSchedulingDate))) {
-                            currentSchedulingDate.setDate(currentSchedulingDate.getDate() + 7); // Move to next Friday
-                        }
+                        if (currentSchedulingDate > maxEndDate) break;
 
-                        if (!isInitial && scheduleEndDate && currentSchedulingDate > parseLocalDate(scheduleEndDate)) {
-                            break; 
-                        }
+                        let matchDateString = formatLocalDate(currentSchedulingDate);
 
-                        const matchDateString = formatLocalDate(currentSchedulingDate);
+                        // If inauguration date is set and matches the week of currentSchedulingDate
+                        if (inaugurationDateObj && !inaugurationWeekHandled) {
+                            const diffMs = Math.abs(currentSchedulingDate.getTime() - inaugurationDateObj.getTime());
+                            const diffDays = diffMs / (1000 * 60 * 60 * 24);
+                            if (diffDays <= 4) {
+                                matchDateString = inaugurationDateStr;
+                                inaugurationWeekHandled = true;
+                            }
+                        }
 
                         visibleLeagues.forEach(league => {
                             if (league.matchDay == null || league.matchDay !== 5) { 
@@ -1516,11 +1690,14 @@ ${message}
                                 }
                             }
                         });
+
+                        week++;
+                        currentSchedulingDate.setDate(currentSchedulingDate.getDate() + 7);
                     }
 
-                    if(newMatches.length > 0) {
+                    if (newMatches.length > 0) {
                         await Promise.all(newMatches.map(match => setDoc(doc(matchesRef, match.id), match)));
-                        showMessage(isInitial ? "Calendario escolar completo generado (Viernes de Sep a Jul, omitiendo vacaciones y CTE)." : "Calendario extendido.");
+                        showMessage(`Calendario escolar generado exitosamente hasta la última semana de junio, omitiendo vacaciones y CTE.`);
                     } else {
                         showMessage("No se generaron nuevos partidos. Verifica la fecha de inicio.");
                     }
@@ -1529,12 +1706,145 @@ ${message}
                 setIsLoading(false);
             };
 
+            const generatePlayoffsSchedule = async () => {
+                if (!playoffsSemifinalDate || !playoffsFinalsDate) {
+                    showMessage("Por favor selecciona ambas fechas (Semifinales y Gran Final).");
+                    return;
+                }
+                setIsLoading(true);
+                const { db } = window.firebaseApp;
+                const { collection, doc, setDoc, getDocs, query, where, deleteDoc, updateDoc } = window.firebaseModules;
+                const matchesRef = collection(db, `artifacts/${appId}/public/data/matches`);
+
+                try {
+                    const visibleLeagueIds = visibleLeagues.map(l => l.id);
+
+                    const q = query(matchesRef, where("leagueId", "in", visibleLeagueIds));
+                    const existingDocs = await getDocs(q);
+                    const playoffDocs = existingDocs.docs.filter(d => d.data().stage && d.data().stage !== 'regular');
+                    await Promise.all(playoffDocs.map(d => deleteDoc(d.ref)));
+
+                    await updateDoc(doc(db, `artifacts/${appId}/public/data/tournaments`, selectedTournamentId), {
+                        playoffTiebreakerRule: playoffTiebreakerRule || 'penalties',
+                        playoffsSemifinalDate,
+                        playoffsFinalsDate
+                    });
+
+                    const newPlayoffMatches = [];
+
+                    visibleLeagues.forEach(league => {
+                        const standings = calculateStandings(league.id, visibleTeams, visibleMatches);
+                        if (standings.length < 4) return;
+
+                        const t1 = standings[0];
+                        const t2 = standings[1];
+                        const t3 = standings[2];
+                        const t4 = standings[3];
+
+                        newPlayoffMatches.push({
+                            id: crypto.randomUUID(),
+                            leagueId: league.id,
+                            homeTeamId: t1.id,
+                            awayTeamId: t4.id,
+                            date: playoffsSemifinalDate,
+                            scoreHome: null,
+                            scoreAway: null,
+                            scorers: [],
+                            stage: 'semifinal',
+                            playoffKey: 'SF1',
+                            seedHome: 1,
+                            seedAway: 4
+                        });
+
+                        newPlayoffMatches.push({
+                            id: crypto.randomUUID(),
+                            leagueId: league.id,
+                            homeTeamId: t2.id,
+                            awayTeamId: t3.id,
+                            date: playoffsSemifinalDate,
+                            scoreHome: null,
+                            scoreAway: null,
+                            scorers: [],
+                            stage: 'semifinal',
+                            playoffKey: 'SF2',
+                            seedHome: 2,
+                            seedAway: 3
+                        });
+
+                        newPlayoffMatches.push({
+                            id: crypto.randomUUID(),
+                            leagueId: league.id,
+                            homeTeamId: 'tbd_3rd_1',
+                            awayTeamId: 'tbd_3rd_2',
+                            date: playoffsFinalsDate,
+                            scoreHome: null,
+                            scoreAway: null,
+                            scorers: [],
+                            stage: 'third_place',
+                            playoffKey: '3RD'
+                        });
+
+                        newPlayoffMatches.push({
+                            id: crypto.randomUUID(),
+                            leagueId: league.id,
+                            homeTeamId: 'tbd_final_1',
+                            awayTeamId: 'tbd_final_2',
+                            date: playoffsFinalsDate,
+                            scoreHome: null,
+                            scoreAway: null,
+                            scorers: [],
+                            stage: 'final',
+                            playoffKey: 'FINAL'
+                        });
+                    });
+
+                    if (newPlayoffMatches.length > 0) {
+                        await Promise.all(newPlayoffMatches.map(m => setDoc(doc(matchesRef, m.id), m)));
+                        showMessage(`Liguilla Final generada exitosamente. Semifinales: ${playoffsSemifinalDate}, Finales: ${playoffsFinalsDate}.`);
+                    } else {
+                        showMessage("No se generó la liguilla. Asegúrate de tener al menos 4 equipos por liga.");
+                    }
+                } catch (e) {
+                    console.error("Error generating playoffs:", e);
+                    showMessage("Error al generar la liguilla final.");
+                }
+                setIsLoading(false);
+            };
+
+            const handleDeletePlayoffsSchedule = async () => {
+                if (confirm("¿Estás seguro de que quieres eliminar todos los partidos de la Liguilla / Playoffs?")) {
+                    setIsLoading(true);
+                    const { db } = window.firebaseApp;
+                    const { collection, getDocs, query, where, deleteDoc } = window.firebaseModules;
+                    const matchesRef = collection(db, `artifacts/${appId}/public/data/matches`);
+                    try {
+                        const visibleLeagueIds = visibleLeagues.map(l => l.id);
+                        const q = query(matchesRef, where("leagueId", "in", visibleLeagueIds));
+                        const existingDocs = await getDocs(q);
+                        const playoffDocs = existingDocs.docs.filter(d => d.data().stage && d.data().stage !== 'regular');
+                        await Promise.all(playoffDocs.map(d => deleteDoc(d.ref)));
+                        showMessage("Partidos de la Liguilla eliminados con éxito.");
+                    } catch (e) {
+                        console.error("Error deleting playoffs:", e);
+                        showMessage("Error al eliminar los partidos de la liguilla.");
+                    }
+                    setIsLoading(false);
+                }
+            };
+
             const getLeagueName = (leagueId) => leagues.find(l => l.id === leagueId)?.name || 'Liga Desconocida';
             const getPlayersByTeam = (teamId) => players.filter(p => p.teamId === teamId);
 
             const calculateStandings = useCallback((leagueId, visibleTeams, visibleMatches) => {
+                const activeTournament = tournaments.find(t => t.id === selectedTournamentId);
                 const leagueTeams = visibleTeams.filter(t => t.leagueId === leagueId);
-                const leagueMatches = visibleMatches.filter(m => m.leagueId === leagueId && m.scoreHome !== null);
+                const leagueMatches = visibleMatches.filter(m => {
+                    if (m.leagueId !== leagueId || m.scoreHome === null || m.scoreAway === null) return false;
+                    if (!activeTournament?.inaugurationDate || m.date < activeTournament.inaugurationDate) {
+                        return false; // Skip friendly matches (or all matches if no inauguration date set)
+                    }
+                    return true;
+                });
                 const standingsMap = leagueTeams.reduce((acc, team) => ({ ...acc, [team.id]: { id: team.id, teamName: team.name, logoUrl: team.logoUrl, played: 0, wins: 0, draws: 0, losses: 0, points: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0 } }), {});
 
                 leagueMatches.forEach(match => {
@@ -1550,7 +1860,7 @@ ${message}
                     away.goalDifference = away.goalsFor - away.goalsAgainst;
                 });
                 return Object.values(standingsMap).sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference);
-            }, []);
+            }, [tournaments, selectedTournamentId]);
 
             const sortLeagues = (a, b) => {
                 const sportOrder = ['Fútbol', 'Básquetbol', 'Tocho', 'Voleibol'];
@@ -1566,20 +1876,30 @@ ${message}
             };
 
             const calculateTopScorers = useCallback((leagueId, visibleMatches, visiblePlayers, visibleTeams) => {
-                const scorersMap = visibleMatches.filter(m => m.leagueId === leagueId).flatMap(m => m.scorers)
+                const activeTournament = tournaments.find(t => t.id === selectedTournamentId);
+                const officialMatches = visibleMatches.filter(m => {
+                    if (m.leagueId !== leagueId) return false;
+                    if (!activeTournament?.inaugurationDate || m.date < activeTournament.inaugurationDate) {
+                        return false; // Skip friendly matches (or all matches if no inauguration date set)
+                    }
+                    return true;
+                });
+
+                const scorersMap = officialMatches.flatMap(m => m.scorers)
                     .reduce((acc, scorer) => {
                         const player = visiblePlayers.find(p => p.id === scorer.playerId);
                         if (player) {
                             const team = visibleTeams.find(t => t.id === player.teamId);
-                            if(team) {
+                            if (team) {
                                 acc[scorer.playerId] = acc[scorer.playerId] || { playerName: player.name, teamName: team.name, logoUrl: team.logoUrl, goals: 0 };
                                 acc[scorer.playerId].goals += scorer.count;
                             }
                         }
                         return acc;
                     }, {});
+
                 return Object.values(scorersMap).sort((a, b) => b.goals - a.goals);
-            }, []);
+            }, [tournaments, selectedTournamentId]);
 
             const svgToPngDataUrl = (svgUrl) => {
                 return new Promise((resolve, reject) => {
@@ -2060,6 +2380,28 @@ ${message}
                             </div>
                         </div>
 
+                        {/* --- Selector de Torneo Activo en el Panel de Administración --- */}
+                        <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700/60 dark:to-gray-700/40 p-4 rounded-2xl border border-blue-100 dark:border-gray-600 shadow-sm">
+                            <div className="flex items-center space-x-2">
+                                <span className="text-xl">🏆</span>
+                                <div>
+                                    <label className="text-xs font-bold text-[#101097] dark:text-blue-300 uppercase tracking-wider block">Torneo Activo (Administrador)</label>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Selecciona el torneo sobre el cual estás trabajando</p>
+                                </div>
+                            </div>
+                            {tournaments.length > 0 ? (
+                                <select 
+                                    value={selectedTournamentId} 
+                                    onChange={(e) => setSelectedTournamentId(e.target.value)} 
+                                    className="bg-white dark:bg-gray-800 border-2 border-[#101097]/40 dark:border-blue-500/50 rounded-xl px-4 py-2 text-gray-900 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#101097] shadow-sm cursor-pointer"
+                                >
+                                    {tournaments.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                </select>
+                            ) : (
+                                <span className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">No hay torneos creados</span>
+                            )}
+                        </div>
+
                         {/* --- Tab 1: Torneos & Resguardo --- */}
                         {adminTab === 'tournaments' && (
                             <div className="space-y-4 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl shadow-inner border border-gray-100 dark:border-gray-700">
@@ -2075,7 +2417,40 @@ ${message}
                                     </button>
                                 </div>
                                 {tournaments.length > 0 && (
-                                     <p className="text-sm text-gray-600 dark:text-gray-400">Torneo activo: <span className="font-bold text-gray-900 dark:text-white">{tournaments.find(t => t.id === selectedTournamentId)?.name}</span></p>
+                                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                                        <label className="text-xs font-bold text-[#101097] dark:text-blue-300 uppercase tracking-wider block">
+                                            🎉 Fecha de Inauguración Deportiva (Sábado)
+                                        </label>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            Los partidos previos a esta fecha se consideran <strong>Amistosos</strong>. A partir de esta fecha (incluida la jornada sabatina de inauguración), los partidos cuentan para la <strong>Clasificación Oficial</strong>.
+                                        </p>
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <input 
+                                                type="date" 
+                                                value={tournaments.find(t => t.id === selectedTournamentId)?.inaugurationDate || ''} 
+                                                onChange={(e) => handleUpdateInaugurationDate(e.target.value)}
+                                                className="p-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-semibold text-gray-900 dark:text-white shadow-sm"
+                                            />
+                                            {tournaments.find(t => t.id === selectedTournamentId)?.inaugurationDate ? (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-700 shadow-sm flex items-center">
+                                                        🎉 Inauguración programada: {tournaments.find(t => t.id === selectedTournamentId)?.inaugurationDate}
+                                                    </span>
+                                                    <button 
+                                                        onClick={() => handleUpdateInaugurationDate('')}
+                                                        className="px-3 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-xs font-bold rounded-xl border border-red-300 dark:border-red-700 transition-all shadow-sm flex items-center"
+                                                        title="Quitar la fecha de inauguración"
+                                                    >
+                                                        ❌ Quitar Fecha
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/40 px-3 py-2 rounded-xl border border-amber-200 dark:border-amber-700">
+                                                    ⚠️ Sin fecha de inauguración definida (Todos los partidos cuentan como Amistosos)
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         )}
@@ -2114,22 +2489,49 @@ ${message}
                             <div className="space-y-6">
                                 <div className="space-y-4 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl shadow-inner border border-gray-100 dark:border-gray-700">
                                     <h3 className="text-2xl font-bold font-outfit text-[#101097] dark:text-blue-300 flex items-center">
-                                        <span className="mr-2">📅</span> Generador de Calendario
+                                        <span className="mr-2">📅</span> Generador de Calendario Escolar
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label htmlFor="schedule-start" className="font-semibold text-sm">Fecha de Inicio (Calendario Base)</label>
-                                            <input id="schedule-start" type="date" value={scheduleStartDate} onChange={e => setScheduleStartDate(e.target.value)} className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm" />
-                                            <button onClick={() => generateSchedule(visibleLeagues, visibleTeams, true)} className="btn-primary w-full mt-2">Generar Calendario Base</button>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        Genera automáticamente los partidos de todos los viernes (y la jornada sabatina de inauguración si está definida) desde la fecha de inicio hasta junio.
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                        <div className="space-y-1.5 w-full">
+                                            <label htmlFor="schedule-start" className="font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                                                Fecha de Inicio del Torneo (Viernes)
+                                            </label>
+                                            <input id="schedule-start" type="date" value={scheduleStartDate} onChange={e => setScheduleStartDate(e.target.value)} className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium shadow-sm" />
                                         </div>
-                                        <div className="space-y-2">
-                                            <label htmlFor="schedule-end" className="font-semibold text-sm">Extender hasta Fecha</label>
-                                            <input id="schedule-end" type="date" value={scheduleEndDate} onChange={e => setScheduleEndDate(e.target.value)} className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm" />
-                                            <button onClick={() => generateSchedule(visibleLeagues, visibleTeams, false)} className="btn-primary w-full mt-2">Extender Calendario</button>
+                                        <div className="space-y-1.5 w-full">
+                                            <label htmlFor="inauguration-date" className="font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 block">
+                                                🎉 Inauguración Deportiva (Sábado)
+                                            </label>
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    id="inauguration-date" 
+                                                    type="date" 
+                                                    value={tournaments.find(t => t.id === selectedTournamentId)?.inaugurationDate || ''} 
+                                                    onChange={e => handleUpdateInaugurationDate(e.target.value)} 
+                                                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium shadow-sm" 
+                                                />
+                                                {tournaments.find(t => t.id === selectedTournamentId)?.inaugurationDate && (
+                                                    <button 
+                                                        onClick={() => handleUpdateInaugurationDate('')}
+                                                        className="px-3 py-2.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-xs font-bold rounded-xl border border-red-300 dark:border-red-700 transition-all shadow-sm whitespace-nowrap"
+                                                        title="Quitar la fecha de inauguración"
+                                                    >
+                                                        ❌ Quitar
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-wrap items-center gap-4 pt-4 border-t dark:border-gray-600">
-                                         <button onClick={() => handleDeleteSchedule(visibleLeagueIds)} className="btn-danger">Borrar Calendario del Torneo</button>
+                                    <div className="flex flex-wrap items-center gap-4 pt-2">
+                                        <button onClick={() => generateSchedule(visibleLeagues, visibleTeams)} className="btn-primary py-2.5 px-6 shadow-md flex items-center justify-center">
+                                            ⚡ Generar Calendario Escolar (con Inauguración)
+                                        </button>
+                                        <button onClick={() => handleDeleteSchedule(visibleLeagueIds)} className="btn-danger py-2.5 px-6 shadow-md flex items-center justify-center">
+                                            🗑️ Borrar Calendario
+                                        </button>
                                     </div>
                                 </div>
 
@@ -2138,6 +2540,60 @@ ${message}
                                     selectedDateFilter={selectedDateFilter}
                                     onSelectDate={setSelectedDateFilter}
                                 />
+
+                                <div className="space-y-4 p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-800/80 dark:to-gray-800 rounded-2xl shadow-sm border border-indigo-100 dark:border-gray-700">
+                                    <h3 className="text-2xl font-bold font-outfit text-purple-900 dark:text-purple-300 flex items-center">
+                                        <span className="mr-2">🏆</span> Generador de Liguilla Final (Playoffs 1-4)
+                                    </h3>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                                        Crea automáticamente la fase eliminatoria por el título (1° vs 4° y 2° vs 3° en Semifinales, seguido de Gran Final y Partido por 3er Lugar) para todas las ligas activas.
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                                        <div className="space-y-1.5">
+                                            <label className="font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 block">
+                                                🔥 Fecha de Semifinales (1° vs 4° y 2° vs 3°)
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={playoffsSemifinalDate}
+                                                onChange={e => setPlayoffsSemifinalDate(e.target.value)}
+                                                className="w-full p-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium shadow-sm"
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 block">
+                                                👑 Fecha de Gran Final y 3er Lugar
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={playoffsFinalsDate}
+                                                onChange={e => setPlayoffsFinalsDate(e.target.value)}
+                                                className="w-full p-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium shadow-sm"
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 block">
+                                                ⚖️ Criterio de Desempate en Empate
+                                            </label>
+                                            <select
+                                                value={playoffTiebreakerRule}
+                                                onChange={e => setPlayoffTiebreakerRule(e.target.value)}
+                                                className="w-full p-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-bold text-gray-900 dark:text-white shadow-sm"
+                                            >
+                                                <option value="penalties">🥅 Penales (Definición por Penaltis)</option>
+                                                <option value="position">📊 Mejor Posición en Tabla Regular</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-4 pt-2">
+                                        <button onClick={generatePlayoffsSchedule} className="bg-gradient-to-r from-purple-600 to-[#101097] text-white font-bold py-2.5 px-6 rounded-xl shadow-md hover:from-purple-700 hover:to-[#001E61] transition-all flex items-center justify-center">
+                                            🏆 Generar Liguilla Final (Playoffs)
+                                        </button>
+                                        <button onClick={handleDeletePlayoffsSchedule} className="px-4 py-2.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-xs font-bold rounded-xl border border-red-300 dark:border-red-700 transition-all shadow-sm">
+                                            🗑️ Borrar Liguilla
+                                        </button>
+                                    </div>
+                                </div>
 
                                 <div className="space-y-4 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl shadow-inner border border-gray-100 dark:border-gray-700">
                                     <h3 className="text-2xl font-bold font-outfit text-[#101097] dark:text-blue-300 flex items-center">
@@ -2180,13 +2636,27 @@ ${message}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2 p-4 bg-white dark:bg-gray-700/50 rounded-2xl shadow-sm">
                                         <label htmlFor="upcoming-date" className="font-bold text-sm block">Próximos Partidos</label>
-                                        <input id="upcoming-date" type="date" value={upcomingMatchesDate} onChange={e => setUpcomingMatchesDate(e.target.value)} className="w-full p-2.5 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm" />
-                                        <button onClick={() => generateUpcomingMatchesPdf(visibleMatches)} className="btn-primary w-full mt-2">Generar PDF</button>
+                                        <select id="upcoming-date" value={upcomingMatchesDate} onChange={e => setUpcomingMatchesDate(e.target.value)} className="w-full p-2.5 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm font-semibold">
+                                            <option value="">-- Seleccionar Fecha de Jornada --</option>
+                                            {[...new Set(visibleMatches.map(m => m.date))].sort().map(d => (
+                                                <option key={d} value={d}>
+                                                    {d} {d === tournaments.find(t => t.id === selectedTournamentId)?.inaugurationDate ? '🎉 (Inauguración)' : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <button onClick={() => generateUpcomingMatchesPdf(visibleMatches)} className="btn-primary w-full mt-2" disabled={!upcomingMatchesDate}>Generar PDF</button>
                                     </div>
                                     <div className="space-y-2 p-4 bg-white dark:bg-gray-700/50 rounded-2xl shadow-sm">
                                         <label htmlFor="referee-date" className="font-bold text-sm block">Cédula de Árbitro</label>
-                                        <input id="referee-date" type="date" value={refereeMatchDate} onChange={e => setRefereeMatchDate(e.target.value)} className="w-full p-2.5 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm" />
-                                        <button onClick={() => generateRefereeSheetPdf(visibleMatches, visiblePlayers)} className="btn-primary w-full mt-2">Generar PDF</button>
+                                        <select id="referee-date" value={refereeMatchDate} onChange={e => setRefereeMatchDate(e.target.value)} className="w-full p-2.5 rounded-xl border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm font-semibold">
+                                            <option value="">-- Seleccionar Fecha de Jornada --</option>
+                                            {[...new Set(visibleMatches.map(m => m.date))].sort().map(d => (
+                                                <option key={d} value={d}>
+                                                    {d} {d === tournaments.find(t => t.id === selectedTournamentId)?.inaugurationDate ? '🎉 (Inauguración)' : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <button onClick={() => generateRefereeSheetPdf(visibleMatches, visiblePlayers)} className="btn-primary w-full mt-2" disabled={!refereeMatchDate}>Generar PDF</button>
                                     </div>
                                     <div className="space-y-2 p-4 bg-white dark:bg-gray-700/50 rounded-2xl shadow-sm">
                                         <label className="font-bold text-sm block">Clasificación y Goleo</label>
@@ -2208,7 +2678,230 @@ ${message}
                 );
             }
 
-            const StandingsView = ({ onViewTeamDetails }) => {
+            const PlayoffsBracketView = ({ onViewTeamDetails }) => {
+            const { leagues, teams, matches, tournaments, selectedTournamentId, calculateStandings } = useData();
+            const visibleLeagues = leagues.filter(l => l.tournamentId === selectedTournamentId).sort(sortLeagues);
+
+            const [selectedPlayoffLeagueId, setSelectedPlayoffLeagueId] = useState(visibleLeagues.length > 0 ? visibleLeagues[0].id : '');
+
+            useEffect(() => {
+                if (!selectedPlayoffLeagueId && visibleLeagues.length > 0) {
+                    setSelectedPlayoffLeagueId(visibleLeagues[0].id);
+                }
+            }, [visibleLeagues, selectedPlayoffLeagueId]);
+
+            const activeLeague = visibleLeagues.find(l => l.id === selectedPlayoffLeagueId) || visibleLeagues[0];
+
+            const getTeam = (teamId) => teams.find(t => t.id === teamId) || { name: 'Por Definir', logoUrl: '' };
+
+            const playoffMatches = matches.filter(m => m.leagueId === activeLeague?.id && m.stage);
+
+            const sf1 = playoffMatches.find(m => m.playoffKey === 'SF1');
+            const sf2 = playoffMatches.find(m => m.playoffKey === 'SF2');
+            const finalMatch = playoffMatches.find(m => m.playoffKey === 'FINAL');
+            const thirdMatch = playoffMatches.find(m => m.playoffKey === '3RD');
+
+            let championTeam = null;
+            let thirdTeam = null;
+
+            if (finalMatch && finalMatch.scoreHome !== null && finalMatch.scoreAway !== null) {
+                if (finalMatch.scoreHome > finalMatch.scoreAway) championTeam = getTeam(finalMatch.homeTeamId);
+                else if (finalMatch.scoreAway > finalMatch.scoreHome) championTeam = getTeam(finalMatch.awayTeamId);
+                else if (finalMatch.penaltyWinnerId) championTeam = getTeam(finalMatch.penaltyWinnerId);
+            }
+
+            if (thirdMatch && thirdMatch.scoreHome !== null && thirdMatch.scoreAway !== null) {
+                if (thirdMatch.scoreHome > thirdMatch.scoreAway) thirdTeam = getTeam(thirdMatch.homeTeamId);
+                else if (thirdMatch.scoreAway > thirdMatch.scoreHome) thirdTeam = getTeam(thirdMatch.awayTeamId);
+                else if (thirdMatch.penaltyWinnerId) thirdTeam = getTeam(thirdMatch.penaltyWinnerId);
+            }
+
+            return (
+                <div className="space-y-6">
+                    <div className="bg-gradient-to-r from-[#101097] via-indigo-900 to-purple-950 text-white p-6 sm:p-8 rounded-3xl shadow-2xl space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <div className="inline-flex items-center space-x-2 bg-amber-400 text-gray-900 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 shadow-sm">
+                                    <span>🏆 FASE FINAL / PLAYOFFS</span>
+                                </div>
+                                <h2 className="text-3xl sm:text-4xl font-black font-outfit tracking-tight">Liguilla por el Título</h2>
+                                <p className="text-blue-100 text-xs sm:text-sm">Semifinales, Partido por el 3er Lugar y Gran Final.</p>
+                            </div>
+
+                            {visibleLeagues.length > 0 && (
+                                <div className="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20">
+                                    <label className="text-xs font-bold text-blue-200 block mb-1 uppercase tracking-wider">Seleccionar Liga:</label>
+                                    <select
+                                        value={selectedPlayoffLeagueId}
+                                        onChange={e => setSelectedPlayoffLeagueId(e.target.value)}
+                                        className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-bold text-sm px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                    >
+                                        {visibleLeagues.map(l => (
+                                            <option key={l.id} value={l.id}>{l.name} ({l.sport})</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {championTeam && (
+                        <div className="relative overflow-hidden bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 p-6 sm:p-8 rounded-3xl shadow-2xl text-gray-900 text-center border-4 border-amber-300">
+                            <div className="text-5xl sm:text-7xl mb-2">👑 🏆 👑</div>
+                            <p className="text-xs font-black uppercase tracking-widest text-amber-950">¡CAMPEÓN DEL TORNEO DE {activeLeague?.sport?.toUpperCase()}!</p>
+                            <h3 className="text-3xl sm:text-5xl font-black font-outfit text-gray-950 drop-shadow-md my-2 flex items-center justify-center gap-3">
+                                {championTeam.logoUrl && <img src={championTeam.logoUrl} className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white p-1 shadow-md object-contain" />}
+                                {championTeam.name}
+                            </h3>
+                            <p className="text-xs sm:text-sm font-extrabold text-amber-900">¡Felicidades a todos los jugadores e integrantes del equipo!</p>
+                        </div>
+                    )}
+
+                    {playoffMatches.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 space-y-4">
+                                <h4 className="text-lg font-black font-outfit text-[#101097] dark:text-blue-300 flex items-center justify-between border-b dark:border-gray-700 pb-2">
+                                    <span>🔥 Semifinales</span>
+                                    <span className="text-xs font-semibold text-gray-500">1° vs 4° & 2° vs 3°</span>
+                                </h4>
+
+                                {sf1 && (
+                                    <div className="bg-gradient-to-br from-gray-50 to-orange-50/50 dark:from-gray-700/50 dark:to-gray-700 p-4 rounded-2xl border border-orange-200 dark:border-gray-600 shadow-sm space-y-2">
+                                        <span className="text-[10px] font-extrabold uppercase text-orange-800 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/60 px-2 py-0.5 rounded-full">Semifinal 1 ({sf1.date})</span>
+                                        <div className="space-y-1.5 pt-1">
+                                            <div className={`flex items-center justify-between font-bold text-sm ${sf1.scoreHome > sf1.scoreAway || sf1.penaltyWinnerId === sf1.homeTeamId ? 'text-[#101097] dark:text-amber-300 font-black' : ''}`}>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-black text-gray-400">1°</span>
+                                                    {getTeam(sf1.homeTeamId).logoUrl && <img src={getTeam(sf1.homeTeamId).logoUrl} className="w-5 h-5 rounded-full object-contain bg-white shadow-sm" />}
+                                                    <span>{getTeam(sf1.homeTeamId).name}</span>
+                                                </div>
+                                                <span className="text-base font-extrabold">{sf1.scoreHome !== null ? sf1.scoreHome : '-'}</span>
+                                            </div>
+                                            <div className={`flex items-center justify-between font-bold text-sm ${sf1.scoreAway > sf1.scoreHome || sf1.penaltyWinnerId === sf1.awayTeamId ? 'text-[#101097] dark:text-amber-300 font-black' : ''}`}>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-black text-gray-400">4°</span>
+                                                    {getTeam(sf1.awayTeamId).logoUrl && <img src={getTeam(sf1.awayTeamId).logoUrl} className="w-5 h-5 rounded-full object-contain bg-white shadow-sm" />}
+                                                    <span>{getTeam(sf1.awayTeamId).name}</span>
+                                                </div>
+                                                <span className="text-base font-extrabold">{sf1.scoreAway !== null ? sf1.scoreAway : '-'}</span>
+                                            </div>
+                                        </div>
+                                        {sf1.penaltyWinnerId && <p className="text-[10px] text-purple-700 dark:text-purple-300 font-extrabold text-right">Gana {getTeam(sf1.penaltyWinnerId).name} en Penales 🥅</p>}
+                                    </div>
+                                )}
+
+                                {sf2 && (
+                                    <div className="bg-gradient-to-br from-gray-50 to-orange-50/50 dark:from-gray-700/50 dark:to-gray-700 p-4 rounded-2xl border border-orange-200 dark:border-gray-600 shadow-sm space-y-2">
+                                        <span className="text-[10px] font-extrabold uppercase text-orange-800 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/60 px-2 py-0.5 rounded-full">Semifinal 2 ({sf2.date})</span>
+                                        <div className="space-y-1.5 pt-1">
+                                            <div className={`flex items-center justify-between font-bold text-sm ${sf2.scoreHome > sf2.scoreAway || sf2.penaltyWinnerId === sf2.homeTeamId ? 'text-[#101097] dark:text-amber-300 font-black' : ''}`}>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-black text-gray-400">2°</span>
+                                                    {getTeam(sf2.homeTeamId).logoUrl && <img src={getTeam(sf2.homeTeamId).logoUrl} className="w-5 h-5 rounded-full object-contain bg-white shadow-sm" />}
+                                                    <span>{getTeam(sf2.homeTeamId).name}</span>
+                                                </div>
+                                                <span className="text-base font-extrabold">{sf2.scoreHome !== null ? sf2.scoreHome : '-'}</span>
+                                            </div>
+                                            <div className={`flex items-center justify-between font-bold text-sm ${sf2.scoreAway > sf2.scoreHome || sf2.penaltyWinnerId === sf2.awayTeamId ? 'text-[#101097] dark:text-amber-300 font-black' : ''}`}>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-black text-gray-400">3°</span>
+                                                    {getTeam(sf2.awayTeamId).logoUrl && <img src={getTeam(sf2.awayTeamId).logoUrl} className="w-5 h-5 rounded-full object-contain bg-white shadow-sm" />}
+                                                    <span>{getTeam(sf2.awayTeamId).name}</span>
+                                                </div>
+                                                <span className="text-base font-extrabold">{sf2.scoreAway !== null ? sf2.scoreAway : '-'}</span>
+                                            </div>
+                                        </div>
+                                        {sf2.penaltyWinnerId && <p className="text-[10px] text-purple-700 dark:text-purple-300 font-extrabold text-right">Gana {getTeam(sf2.penaltyWinnerId).name} en Penales 🥅</p>}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 space-y-4 flex flex-col justify-between">
+                                <div>
+                                    <h4 className="text-lg font-black font-outfit text-amber-700 dark:text-amber-400 flex items-center justify-between border-b dark:border-gray-700 pb-2">
+                                        <span>🥉 Partido por 3er Lugar</span>
+                                        <span className="text-xs font-semibold text-gray-500">Perdedores SF</span>
+                                    </h4>
+
+                                    {thirdMatch && (
+                                        <div className="bg-gradient-to-br from-gray-50 to-amber-50/50 dark:from-gray-700/50 dark:to-gray-700 p-5 rounded-2xl border border-amber-200 dark:border-gray-600 shadow-sm space-y-3 mt-4">
+                                            <span className="text-[10px] font-extrabold uppercase text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2.5 py-0.5 rounded-full">3er Lugar ({thirdMatch.date})</span>
+                                            <div className="space-y-2 pt-1">
+                                                <div className={`flex items-center justify-between font-bold text-sm ${thirdMatch.scoreHome > thirdMatch.scoreAway || thirdMatch.penaltyWinnerId === thirdMatch.homeTeamId ? 'text-amber-600 dark:text-amber-300 font-black' : ''}`}>
+                                                    <div className="flex items-center gap-2">
+                                                        {getTeam(thirdMatch.homeTeamId).logoUrl && <img src={getTeam(thirdMatch.homeTeamId).logoUrl} className="w-6 h-6 rounded-full object-contain bg-white shadow-sm" />}
+                                                        <span>{getTeam(thirdMatch.homeTeamId).name}</span>
+                                                    </div>
+                                                    <span className="text-lg font-black">{thirdMatch.scoreHome !== null ? thirdMatch.scoreHome : '-'}</span>
+                                                </div>
+                                                <div className={`flex items-center justify-between font-bold text-sm ${thirdMatch.scoreAway > thirdMatch.scoreHome || thirdMatch.penaltyWinnerId === thirdMatch.awayTeamId ? 'text-amber-600 dark:text-amber-300 font-black' : ''}`}>
+                                                    <div className="flex items-center gap-2">
+                                                        {getTeam(thirdMatch.awayTeamId).logoUrl && <img src={getTeam(thirdMatch.awayTeamId).logoUrl} className="w-6 h-6 rounded-full object-contain bg-white shadow-sm" />}
+                                                        <span>{getTeam(thirdMatch.awayTeamId).name}</span>
+                                                    </div>
+                                                    <span className="text-lg font-black">{thirdMatch.scoreAway !== null ? thirdMatch.scoreAway : '-'}</span>
+                                                </div>
+                                            </div>
+                                            {thirdTeam && (
+                                                <div className="bg-amber-100 dark:bg-amber-900/60 p-2 rounded-xl border border-amber-300 dark:border-amber-700 text-center">
+                                                    <p className="text-xs font-black text-amber-900 dark:text-amber-200">🥉 3er Lugar: {thirdTeam.name}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-xl border-2 border-amber-400 dark:border-amber-500 space-y-4 flex flex-col justify-between">
+                                <div>
+                                    <h4 className="text-lg font-black font-outfit text-purple-700 dark:text-purple-300 flex items-center justify-between border-b dark:border-gray-700 pb-2">
+                                        <span>👑 Gran Final</span>
+                                        <span className="text-xs font-semibold text-gray-500">Ganadores SF</span>
+                                    </h4>
+
+                                    {finalMatch && (
+                                        <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-amber-50 dark:from-purple-950/40 dark:to-gray-700 p-5 rounded-2xl border-2 border-purple-300 dark:border-purple-700 shadow-md space-y-3 mt-4">
+                                            <span className="text-[10px] font-extrabold uppercase text-purple-800 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/60 px-2.5 py-0.5 rounded-full">Gran Final ({finalMatch.date})</span>
+                                            <div className="space-y-2 pt-1">
+                                                <div className={`flex items-center justify-between font-bold text-base ${finalMatch.scoreHome > finalMatch.scoreAway || finalMatch.penaltyWinnerId === finalMatch.homeTeamId ? 'text-amber-600 dark:text-amber-300 font-black' : ''}`}>
+                                                    <div className="flex items-center gap-2">
+                                                        {getTeam(finalMatch.homeTeamId).logoUrl && <img src={getTeam(finalMatch.homeTeamId).logoUrl} className="w-7 h-7 rounded-full object-contain bg-white shadow-sm" />}
+                                                        <span>{getTeam(finalMatch.homeTeamId).name}</span>
+                                                    </div>
+                                                    <span className="text-xl font-black">{finalMatch.scoreHome !== null ? finalMatch.scoreHome : '-'}</span>
+                                                </div>
+                                                <div className={`flex items-center justify-between font-bold text-base ${finalMatch.scoreAway > finalMatch.scoreHome || finalMatch.penaltyWinnerId === finalMatch.awayTeamId ? 'text-amber-600 dark:text-amber-300 font-black' : ''}`}>
+                                                    <div className="flex items-center gap-2">
+                                                        {getTeam(finalMatch.awayTeamId).logoUrl && <img src={getTeam(finalMatch.awayTeamId).logoUrl} className="w-7 h-7 rounded-full object-contain bg-white shadow-sm" />}
+                                                        <span>{getTeam(finalMatch.awayTeamId).name}</span>
+                                                    </div>
+                                                    <span className="text-xl font-black">{finalMatch.scoreAway !== null ? finalMatch.scoreAway : '-'}</span>
+                                                </div>
+                                            </div>
+                                            {championTeam && (
+                                                <div className="bg-gradient-to-r from-amber-400 to-yellow-400 p-3 rounded-xl shadow-md text-center text-gray-950 font-black">
+                                                    <p className="text-sm">👑 CAMPEÓN: {championTeam.name}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-sm text-center border border-gray-100 dark:border-gray-700 space-y-2">
+                            <p className="text-4xl">🏆</p>
+                            <h4 className="text-xl font-bold font-outfit text-gray-800 dark:text-gray-200">Liguilla Final no programada aún</h4>
+                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                                Al terminar la temporada regular de {activeLeague?.name}, el administrador generará las Semifinales y Gran Final para esta liga.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const StandingsView = ({ onViewTeamDetails }) => {
                 const isFiltered = Boolean(selectedStandingsLeagueFilter);
                 const activeLeague = visibleLeagues.find(l => l.id === selectedStandingsLeagueFilter);
                 
@@ -2329,6 +3022,22 @@ ${message}
                                 <select value={selectedTournamentId} onChange={(e) => setSelectedTournamentId(e.target.value)} className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2 text-gray-900 dark:text-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-[#101097]">
                                     {tournaments.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                                 </select>
+                            </div>
+                        )}
+
+                        {tournaments.find(t => t.id === selectedTournamentId)?.inaugurationDate ? (
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700/60 p-4 rounded-2xl border border-blue-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
+                                <span className="text-2xl">ℹ️</span>
+                                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-medium">
+                                    <strong>Información Oficial:</strong> La Clasificación y Goleo oficial contabilizan únicamente los partidos a partir de la <strong>Inauguración Deportiva ({tournaments.find(t => t.id === selectedTournamentId)?.inaugurationDate})</strong>. Los partidos previos son considerados <strong>Amistosos</strong>.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-amber-900/20 p-4 rounded-2xl border border-amber-200 dark:border-amber-800 shadow-sm flex items-center gap-3">
+                                <span className="text-2xl">⚠️</span>
+                                <p className="text-xs sm:text-sm text-amber-900 dark:text-amber-200 font-medium">
+                                    <strong>Partidos Amistosos en curso:</strong> Aún no se ha definido la <strong>Fecha de Inauguración Deportiva</strong>. Todos los partidos actuales se juegan como <strong>Amistosos</strong> y la Tabla de Clasificación comenzará a contabilizar puntos a partir del día del evento inaugural.
+                                </p>
                             </div>
                         )}
 
@@ -2464,6 +3173,7 @@ ${message}
                 }
                 switch (view) {
                     case 'standings': return <StandingsView onViewTeamDetails={handleViewTeamDetails} />;
+                    case 'playoffs': return <PlayoffsBracketView onViewTeamDetails={handleViewTeamDetails} />;
                     case 'admin': return user ? <AdminPanel /> : (
                         <div className="flex items-center justify-center h-[50vh]">
                             <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-sm text-center border-t-4 border-[#101097]">
@@ -2501,6 +3211,9 @@ ${message}
                             <div className="flex items-center space-x-2">
                                 <button onClick={() => setView('standings')} className={`nav-button ${view === 'standings' ? 'bg-white/20 font-bold' : ''}`}>
                                     <TrophyIcon className="inline-block w-5 h-5 mr-1.5" />Clasificación
+                                </button>
+                                <button onClick={() => setView('playoffs')} className={`nav-button ${view === 'playoffs' ? 'bg-white/20 font-bold' : ''}`}>
+                                    <span className="inline-block mr-1.5">🏆</span>Playoffs
                                 </button>
                                 <button onClick={() => setView('admin')} className={`nav-button ${view === 'admin' ? 'bg-white/20 font-bold' : ''}`}>
                                     <LockIcon className="inline-block w-5 h-5 mr-1.5" />Admin
