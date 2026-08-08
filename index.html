@@ -31,7 +31,19 @@
             font-family: 'Outfit', sans-serif;
         }
         .nav-button {
-            @apply flex items-center py-2 px-4 rounded-full text-white font-medium hover:bg-white/20 transition-all duration-300;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            color: #ffffff !important;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .nav-button, .nav-button * {
+            color: #ffffff !important;
+        }
+        .nav-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
         .btn-primary {
              @apply py-2.5 px-5 bg-[#101097] text-white font-semibold rounded-xl shadow-md hover:bg-[#001E61] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#101097] transition-all duration-300;
@@ -3321,17 +3333,17 @@
                                 <span className="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold border border-white/20 shadow-sm hidden sm:inline-block">PRIMARIA</span>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <button onClick={() => setView('standings')} className={`nav-button ${view === 'standings' ? 'bg-white/20 font-bold' : ''}`}>
-                                    <TrophyIcon className="inline-block w-5 h-5 mr-1.5" />Clasificación
+                                <button onClick={() => setView('standings')} className={`nav-button text-white ${view === 'standings' ? 'bg-white/20 font-bold' : ''}`}>
+                                    <TrophyIcon className="inline-block w-5 h-5 mr-1.5 text-white" />Clasificación
                                 </button>
-                                <button onClick={() => setView('playoffs')} className={`nav-button ${view === 'playoffs' ? 'bg-white/20 font-bold' : ''}`}>
-                                    <span className="inline-block mr-1.5">🏆</span>Playoffs
+                                <button onClick={() => setView('playoffs')} className={`nav-button text-white ${view === 'playoffs' ? 'bg-white/20 font-bold' : ''}`}>
+                                    <span className="inline-block mr-1.5 text-white">🏆</span>Playoffs
                                 </button>
-                                <button onClick={() => setView('admin')} className={`nav-button ${view === 'admin' ? 'bg-white/20 font-bold' : ''}`}>
-                                    <LockIcon className="inline-block w-5 h-5 mr-1.5" />Admin
+                                <button onClick={() => setView('admin')} className={`nav-button text-white ${view === 'admin' ? 'bg-white/20 font-bold' : ''}`}>
+                                    <LockIcon className="inline-block w-5 h-5 mr-1.5 text-white" />Admin
                                 </button>
                                 {user && (
-                                    <button onClick={handleLogout} className="nav-button bg-red-600/80 hover:bg-red-700">Cerrar Sesión</button>
+                                    <button onClick={handleLogout} className="nav-button text-white bg-red-600 hover:bg-red-700 font-bold px-4 py-2 rounded-full shadow-md transition-all">Cerrar Sesión</button>
                                 )}
                                 <button onClick={toggleTheme} className="p-2 rounded-full text-white hover:bg-white/20 transition-all ml-1" title="Cambiar tema">
                                     {theme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5 text-amber-300" />}
