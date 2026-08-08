@@ -3052,59 +3052,6 @@
                                         selectedLeagueFilter={selectedLeagueFilter}
                                     />
                                 </div>
-
-                                {/* --- Resumen de la Jornada para Redes Sociales (Facebook / Instagram) --- */}
-                                <div className="space-y-4 p-6 bg-gradient-to-br from-slate-900 via-[#101097] to-slate-900 text-white rounded-2xl shadow-xl border border-blue-900/50">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
-                                        <div>
-                                            <h3 className="text-xl font-bold font-outfit text-white flex items-center">
-                                                <span className="mr-2">📱</span> Resumen Multi-Deporte para Redes Sociales
-                                            </h3>
-                                            <p className="text-xs text-blue-200">
-                                                Genera pósters gráficos HD y resúmenes formateados de Fútbol y Básquetbol para publicar en Facebook.
-                                            </p>
-                                        </div>
-                                        {selectedDateFilter && (
-                                            <span className="bg-amber-400 text-slate-950 text-xs font-black px-3 py-1 rounded-xl shadow-sm self-start sm:self-auto">
-                                                Jornada: {selectedDateFilter}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
-                                        {/* Boton 1: Poster Combinado Multi-Deporte */}
-                                        <button 
-                                            onClick={() => printFacebookSummaryWindow(visibleMatches, visibleLeagues, visibleTeams, visiblePlayers, selectedDateFilter, 'ALL', 'Primaria Tuxtla')} 
-                                            className="py-3 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-1.5"
-                                        >
-                                            🏆 Póster Combinado (Fut + Básquet)
-                                        </button>
-
-                                        {/* Boton 2: Poster Solo Futbol */}
-                                        <button 
-                                            onClick={() => printFacebookSummaryWindow(visibleMatches, visibleLeagues, visibleTeams, visiblePlayers, selectedDateFilter, 'Fútbol', 'Primaria Tuxtla')} 
-                                            className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-1.5"
-                                        >
-                                            ⚽ Póster Fútbol
-                                        </button>
-
-                                        {/* Boton 3: Poster Solo Basquetbol */}
-                                        <button 
-                                            onClick={() => printFacebookSummaryWindow(visibleMatches, visibleLeagues, visibleTeams, visiblePlayers, selectedDateFilter, 'Básquetbol', 'Primaria Tuxtla')} 
-                                            className="py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-1.5"
-                                        >
-                                            🏀 Póster Básquetbol
-                                        </button>
-
-                                        {/* Boton 4: Copiar Texto Formateado */}
-                                        <button 
-                                            onClick={() => copyFacebookSummaryText(visibleMatches, visibleLeagues, visibleTeams, visiblePlayers, selectedDateFilter, 'PRIMARIA')} 
-                                            className="py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-1.5"
-                                        >
-                                            📋 Copiar Texto Completo
-                                        </button>
-                                    </div>
-                                </div>
                             </div>
                         )}
 
