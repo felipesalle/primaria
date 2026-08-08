@@ -13,6 +13,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.20/babel.min.js"></script>
     <!-- Cargar la librería de Tailwind CSS desde un CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +52,11 @@
     </style>
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.className = savedTheme;
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     </script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
@@ -3283,10 +3292,22 @@
 
             const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
+            useEffect(() => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, [theme]);
+
             const toggleTheme = () => {
                 const nextTheme = theme === 'light' ? 'dark' : 'light';
                 setTheme(nextTheme);
-                document.documentElement.className = nextTheme;
+                if (nextTheme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
                 localStorage.setItem('theme', nextTheme);
             };
 
