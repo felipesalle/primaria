@@ -134,6 +134,7 @@
         // --- Telegram Notification Function ---
         const TELEGRAM_BOT_TOKEN = '8314025136:AAG3P1AoU1rExMIeTEsE_1YDxc-Vj3r9Tac';
         const TELEGRAM_CHAT_ID = '6740086';
+        const APP_LEVEL_NAME = '🏫 PRIMARIA';
 
         const sendTelegramNotification = async (message, userEmail) => {
             if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
@@ -143,7 +144,7 @@
             try {
                 const cleanEmail = userEmail || 'Usuario Administrador';
                 const cleanMsg = typeof message === 'string' ? message.replace(/\*/g, '') : message;
-                const fullMessage = `🔔 ACCIÓN EN LA APP:\n${cleanMsg}\n\n👤 Realizada por: ${cleanEmail}`;
+                const fullMessage = `📌 [TORNEOS ${APP_LEVEL_NAME}]\n🔔 ACCIÓN EN LA APP:\n${cleanMsg}\n\n👤 Realizada por: ${cleanEmail}`;
                 const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
                 const response = await fetch(url, {
