@@ -139,6 +139,15 @@
             return `${year}-${month}-${day}`;
         };
 
+        const getFridayForDate = (dateStr) => {
+            if (!dateStr) return dateStr;
+            const d = parseLocalDate(dateStr);
+            const day = d.getDay();
+            const diffToFriday = 5 - day;
+            d.setDate(d.getDate() + diffToFriday);
+            return formatLocalDate(d);
+        };
+
         const HOLIDAY_CTE_DATES = [
             // 2025-2026
             "2025-09-26", "2025-10-31", "2025-11-28", "2025-12-19", "2025-12-26", "2026-01-02", "2026-01-09",
@@ -1596,21 +1605,47 @@
                 const { doc, updateDoc, writeBatch } = window.firebaseModules;
                 try {
                     const db = window.firebaseApp.db;
+                    const activeTournamentObj = tournaments.find(t => t.id === selectedTournamentId);
+                    const oldInaugurationDate = activeTournamentObj?.inaugurationDate || null;
+
                     await updateDoc(doc(db, `artifacts/${appId}/public/data/tournaments`, selectedTournamentId), { inaugurationDate: newInaugurationDate });
 
                     if (visibleMatches.length > 0) {
                         const batch = writeBatch(db);
                         let updatedCount = 0;
 
-                        if (newInaugurationDate) {
-                            const targetObj = parseLocalDate(newInaugurationDate);
+                        // 1. Restaurar partidos que pertenecían a la fecha de inauguración anterior
+                        if (oldInaugurationDate) {
                             visibleMatches.forEach(m => {
+                                if (m.date === oldInaugurationDate) {
+                                    const restoredDate = m.originalDate || getFridayForDate(oldInaugurationDate);
+                                    if (restoredDate !== m.date) {
+                                        batch.update(doc(db, `artifacts/${appId}/public/data/matches`, m.id), { date: restoredDate });
+                                        updatedCount++;
+                                    }
+                                }
+                            });
+                        }
+
+                        // 2. Si se establece una nueva fecha de inauguración, mover los partidos de esa semana
+                        if (newInaugurationDate) {
+                            const targetFriday = getFridayForDate(newInaugurationDate);
+                            const targetObj = parseLocalDate(newInaugurationDate);
+
+                            visibleMatches.forEach(m => {
+                                const currentOriginal = m.originalDate || getFridayForDate(m.date);
                                 const matchDateObj = parseLocalDate(m.date);
                                 const diffMs = Math.abs(matchDateObj.getTime() - targetObj.getTime());
                                 const diffDays = diffMs / (1000 * 60 * 60 * 24);
-                                if (diffDays <= 4 && m.date !== newInaugurationDate) {
-                                    batch.update(doc(db, `artifacts/${appId}/public/data/matches`, m.id), { date: newInaugurationDate });
-                                    updatedCount++;
+
+                                if (currentOriginal === targetFriday || diffDays <= 4) {
+                                    if (m.date !== newInaugurationDate) {
+                                        batch.update(doc(db, `artifacts/${appId}/public/data/matches`, m.id), { 
+                                            date: newInaugurationDate,
+                                            originalDate: currentOriginal
+                                        });
+                                        updatedCount++;
+                                    }
                                 }
                             });
                         }
@@ -1620,7 +1655,7 @@
                         }
                     }
 
-                    showMessage(newInaugurationDate ? `Fecha de inauguración deportiva establecida: ${newInaugurationDate}` : "Fecha de inauguración eliminada.");
+                    showMessage(newInaugurationDate ? `Fecha de inauguración deportiva establecida: ${newInaugurationDate}` : "Fecha de inauguración eliminada. Todos los partidos han sido restaurados a su viernes original.");
                 } catch (e) {
                     console.error("Error updating inauguration date:", e);
                     showMessage("Error al guardar la fecha de inauguración.");
@@ -1766,7 +1801,8 @@
 
                         if (currentSchedulingDate > maxEndDate) break;
 
-                        let matchDateString = formatLocalDate(currentSchedulingDate);
+                        const fridayDateString = formatLocalDate(currentSchedulingDate);
+                        let matchDateString = fridayDateString;
 
                         // If inauguration date is set and matches the week of currentSchedulingDate
                         if (inaugurationDateObj && !inaugurationWeekHandled) {
@@ -1796,7 +1832,17 @@
                                 const home = currentRoundTeams[i];
                                 const away = currentRoundTeams[currentRoundTeams.length - 1 - i];
                                 if (home.id !== 'bye' && away.id !== 'bye') {
-                                    const newMatch = { id: crypto.randomUUID(), leagueId: league.id, homeTeamId: home.id, awayTeamId: away.id, date: matchDateString, scoreHome: null, scoreAway: null, scorers: [] };
+                                    const newMatch = { 
+                                        id: crypto.randomUUID(), 
+                                        leagueId: league.id, 
+                                        homeTeamId: home.id, 
+                                        awayTeamId: away.id, 
+                                        date: matchDateString, 
+                                        originalDate: fridayDateString,
+                                        scoreHome: null, 
+                                        scoreAway: null, 
+                                        scorers: [] 
+                                    };
                                     newMatches.push(newMatch);
                                 }
                             }
