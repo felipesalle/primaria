@@ -262,10 +262,10 @@
                 }
 
                 const activeTournament = tournaments.find(t => t.id === selectedTournamentId);
-                if (!activeTournament?.inaugurationDate || matchDate < activeTournament.inaugurationDate) {
+                if (activeTournament?.inaugurationDate && matchDate < activeTournament.inaugurationDate) {
                     return <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-sm">🤝 Amistoso</span>;
                 }
-                if (matchDate === activeTournament.inaugurationDate) {
+                if (activeTournament?.inaugurationDate && matchDate === activeTournament.inaugurationDate) {
                     return <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-700 shadow-sm">🎉 Inauguración Oficial</span>;
                 }
                 return <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-sm">🏆 Oficial</span>;
@@ -2328,8 +2328,8 @@
                 const leagueTeams = visibleTeams.filter(t => t.leagueId === leagueId);
                 const leagueMatches = visibleMatches.filter(m => {
                     if (m.leagueId !== leagueId || m.scoreHome === null || m.scoreAway === null) return false;
-                    if (!activeTournament?.inaugurationDate || m.date < activeTournament.inaugurationDate) {
-                        return false; // Skip friendly matches (or all matches if no inauguration date set)
+                    if (activeTournament?.inaugurationDate && m.date < activeTournament.inaugurationDate) {
+                        return false; // Skip friendly matches before inauguration date
                     }
                     return true;
                 });
@@ -2339,8 +2339,8 @@
                     const home = standingsMap[match.homeTeamId], away = standingsMap[match.awayTeamId];
                     if (!home || !away) return;
                     home.played++; away.played++;
-                    home.goalsFor += match.scoreHome; home.goalsAgainst += match.scoreAway;
-                    away.goalsFor += match.scoreAway; away.goalsAgainst += match.scoreHome;
+                    home.goalsFor += Number(match.scoreHome) || 0; home.goalsAgainst += Number(match.scoreAway) || 0;
+                    away.goalsFor += Number(match.scoreAway) || 0; away.goalsAgainst += Number(match.scoreHome) || 0;
                     if (match.scoreHome > match.scoreAway) { home.wins++; away.losses++; home.points += 3; } 
                     else if (match.scoreHome < match.scoreAway) { away.wins++; home.losses++; away.points += 3; } 
                     else { home.draws++; away.draws++; home.points++; away.points++; }
@@ -2367,20 +2367,20 @@
                 const activeTournament = tournaments.find(t => t.id === selectedTournamentId);
                 const officialMatches = visibleMatches.filter(m => {
                     if (m.leagueId !== leagueId) return false;
-                    if (!activeTournament?.inaugurationDate || m.date < activeTournament.inaugurationDate) {
-                        return false; // Skip friendly matches (or all matches if no inauguration date set)
+                    if (activeTournament?.inaugurationDate && m.date < activeTournament.inaugurationDate) {
+                        return false; // Skip friendly matches before inauguration date
                     }
                     return true;
                 });
 
-                const scorersMap = officialMatches.flatMap(m => m.scorers)
+                const scorersMap = officialMatches.flatMap(m => m.scorers || [])
                     .reduce((acc, scorer) => {
                         const player = visiblePlayers.find(p => p.id === scorer.playerId);
                         if (player) {
                             const team = visibleTeams.find(t => t.id === player.teamId);
                             if (team) {
                                 acc[scorer.playerId] = acc[scorer.playerId] || { playerName: player.name, teamName: team.name, logoUrl: team.logoUrl, goals: 0 };
-                                acc[scorer.playerId].goals += scorer.count;
+                                acc[scorer.playerId].goals += Number(scorer.count) || 0;
                             }
                         }
                         return acc;
@@ -3469,13 +3469,17 @@
                     let topTeamPtsText = 'Sin datos';
 
                     if (sportStandings.length > 0) {
-                        const sortedStandings = [...sportStandings].sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference);
-                        const maxPoints = sortedStandings[0].points;
-                        const maxDiff = sortedStandings[0].goalDifference;
-                        if (maxPoints > 0 || sortedStandings.some(t => t.played > 0)) {
-                            const topTeams = sortedStandings.filter(t => t.points === maxPoints && t.goalDifference === maxDiff);
+                        const sortedStandings = [...sportStandings].sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference || b.goalsFor - a.goalsFor);
+                        const topTeam = sortedStandings[0];
+                        if (topTeam && (topTeam.played > 0 || topTeam.points > 0)) {
+                            const maxPoints = topTeam.points;
+                            const maxDiff = topTeam.goalDifference;
+                            const topTeams = sortedStandings.filter(t => t.points === maxPoints && t.goalDifference === maxDiff && (t.played > 0 || t.points > 0));
                             topTeamText = topTeams.map(t => t.teamName).join(', ');
                             topTeamPtsText = `${maxPoints} Pts`;
+                        } else if (topTeam) {
+                            topTeamText = topTeam.teamName;
+                            topTeamPtsText = '0 Pts (Sin partidos)';
                         }
                     }
 
@@ -3486,11 +3490,14 @@
 
                     if (sportScorers.length > 0) {
                         const sortedScorers = [...sportScorers].sort((a, b) => b.goals - a.goals);
-                        const maxGoals = sortedScorers[0].goals;
-                        if (maxGoals > 0) {
+                        if (sortedScorers[0] && sortedScorers[0].goals > 0) {
+                            const maxGoals = sortedScorers[0].goals;
                             const topScorersList = sortedScorers.filter(s => s.goals === maxGoals);
-                            topScorerText = topScorersList.map(s => s.playerName).join(', ');
+                            topScorerText = topScorersList.map(s => `${s.playerName} (${s.teamName})`).join(', ');
                             topScorerGoalsText = `${maxGoals} ${currentTerms.scorerHeader.toLowerCase()}`;
+                        } else {
+                            topScorerText = 'Sin anotaciones';
+                            topScorerGoalsText = `0 ${currentTerms.scorerHeader.toLowerCase()}`;
                         }
                     }
 
