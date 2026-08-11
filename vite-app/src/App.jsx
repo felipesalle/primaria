@@ -51,13 +51,24 @@ export const DataProvider = ({ children, user, isAuthReady }) => {
         const q = collection(db, `artifacts/${APP_ID}/public/data/tournaments`);
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            data.sort((a, b) => {
+                const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                if (timeA !== timeB) return timeB - timeA;
+                return (b.id || '').localeCompare(a.id || '');
+            });
             setTournaments(data);
-            if (data.length > 0 && !selectedTournamentId) {
-                setSelectedTournamentId(data[0].id);
+            if (data.length > 0) {
+                setSelectedTournamentId(prev => {
+                    if (!prev || !data.some(t => t.id === prev)) {
+                        return data[0].id;
+                    }
+                    return prev;
+                });
             }
         }, err => console.error("Tournaments listener error:", err));
         return () => unsubscribe();
-    }, [selectedTournamentId]);
+    }, []);
 
     useEffect(() => {
         const collections = ['leagues', 'teams', 'players', 'matches'];
