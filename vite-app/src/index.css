@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-outfit: 'Outfit', sans-serif;
+    --font-inter: 'Inter', sans-serif;
+}
+
+.font-outfit { font-family: 'Outfit', sans-serif; }
+
+/* Animación de Ticker Marquee Infinito */
+@keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+    display: inline-flex;
+    width: max-content;
+    animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+    animation-play-state: paused;
+}
+
+@layer utilities {
+    .nav-button { @apply transition-all duration-300 font-medium; }
+    .nav-button.active {
+        background-color: #ffffff !important;
+        color: #101097 !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        font-weight: 700;
+    }
+    .btn-primary {
+        @apply py-2.5 px-6 bg-gradient-to-r from-[#101097] to-[#2a2ad9] text-white font-semibold rounded-xl shadow-md hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#101097] transition-all duration-300 cursor-pointer;
+    }
+    .btn-danger {
+        @apply py-2.5 px-6 bg-gradient-to-r from-[#CE0E2D] to-[#ff4d63] text-white font-semibold rounded-xl shadow-md hover:shadow-xl hover:shadow-red-500/30 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CE0E2D] transition-all duration-300 cursor-pointer;
+    }
+    .card {
+        @apply bg-white/90 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl border border-slate-100 dark:border-slate-700/60 transition-all duration-300;
+    }
+    .input-modern {
+        @apply w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#101097] focus:border-transparent transition-all duration-300;
+    }
+}
+
+input, select, select option, textarea {
+    background-color: #ffffff;
+    color: #1e293b;
+}
+
+.dark input, .dark select, .dark select option, .dark textarea {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
