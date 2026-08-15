@@ -16,46 +16,46 @@ export const StandingsTable = ({ standings, sport, onViewTeamDetails }) => {
     };
 
     const getPodiumBadge = (index) => {
-        if (index === 0) return <span className="mr-1 text-base">🥇</span>;
-        if (index === 1) return <span className="mr-1 text-base">🥈</span>;
-        if (index === 2) return <span className="mr-1 text-base">🥉</span>;
-        return <span className="text-xs text-gray-400 font-mono w-4 inline-block">{index + 1}</span>;
+        if (index === 0) return <span className="mr-1 text-lg">🥇</span>;
+        if (index === 1) return <span className="mr-1 text-lg">🥈</span>;
+        if (index === 2) return <span className="mr-1 text-lg">🥉</span>;
+        return <span className="text-sm text-gray-400 dark:text-gray-500 font-bold w-5 inline-block text-center">{index + 1}</span>;
     };
 
     return (
-        <div className="overflow-x-auto rounded-xl shadow-lg bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50">
+        <div className="overflow-x-auto rounded-2xl shadow-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/60">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700/50">
+                <thead className="bg-gray-100/80 dark:bg-gray-700/70">
                     <tr>
                         {headers.map((header, idx) => (
-                            <th key={header} className={`px-4 py-3 text-xs font-bold text-gray-600 dark:text-gray-200 uppercase tracking-wider ${idx <= 1 ? 'text-left' : 'text-center'}`}>{header}</th>
+                            <th key={header} className={`px-3 sm:px-4 py-3.5 text-xs sm:text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-wider ${idx <= 1 ? 'text-left' : 'text-center'}`}>{header}</th>
                         ))}
                     </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700/80">
                     {standings.map((team, index) => (
                         <tr key={index} className={getPodiumStyles(index)}>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-center font-bold">{getPodiumBadge(index)}</td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                <div className="flex items-center cursor-pointer" onClick={() => onViewTeamDetails && onViewTeamDetails(team.id)}>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-sm text-center font-bold">{getPodiumBadge(index)}</td>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-sm sm:text-base font-extrabold text-gray-900 dark:text-white">
+                                <div className="flex items-center cursor-pointer group" onClick={() => onViewTeamDetails && onViewTeamDetails(team.id)}>
                                     <img 
                                         src={team.logoUrl} 
                                         alt={`Logo de ${team.teamName}`} 
                                         referrerPolicy="no-referrer" 
-                                        className="w-6 h-6 rounded-full mr-3 shadow-sm object-contain bg-white border border-gray-100" 
+                                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full mr-3 shadow-md object-contain bg-white border border-gray-200 dark:border-gray-600" 
                                         onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName || 'EQ')}&background=101097&color=fff&rounded=true`; }} 
                                     />
-                                    <span className="hover:underline">{team.teamName}</span>
+                                    <span className="group-hover:text-[#101097] dark:group-hover:text-blue-300 transition-colors">{team.teamName}</span>
                                 </div>
                             </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-center text-gray-600 dark:text-gray-300">{team.played}</td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-center text-gray-600 dark:text-gray-300">{team.wins}</td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-center text-gray-600 dark:text-gray-300">{team.draws}</td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-center text-gray-600 dark:text-gray-300">{team.losses}</td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-center text-gray-600 dark:text-gray-300">{team.goalsFor}</td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-center text-gray-600 dark:text-gray-300">{team.goalsAgainst}</td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-center text-gray-600 dark:text-gray-300">{team.goalDifference}</td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-center font-extrabold text-[#101097] dark:text-blue-300 text-base">{team.points}</td>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-sm sm:text-base text-center text-gray-700 dark:text-gray-200 font-semibold">{team.played}</td>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-sm sm:text-base text-center text-gray-700 dark:text-gray-200 font-semibold">{team.wins}</td>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-sm sm:text-base text-center text-gray-700 dark:text-gray-200 font-semibold">{team.draws}</td>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-sm sm:text-base text-center text-gray-700 dark:text-gray-200 font-semibold">{team.losses}</td>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-sm sm:text-base text-center text-gray-700 dark:text-gray-200 font-semibold">{team.goalsFor}</td>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-sm sm:text-base text-center text-gray-700 dark:text-gray-200 font-semibold">{team.goalsAgainst}</td>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-sm sm:text-base text-center text-gray-700 dark:text-gray-200 font-semibold">{team.goalDifference}</td>
+                            <td className="px-3 sm:px-4 py-3.5 whitespace-nowrap text-base sm:text-lg text-center font-black text-[#101097] dark:text-blue-300">{team.points}</td>
                         </tr>
                     ))}
                 </tbody>

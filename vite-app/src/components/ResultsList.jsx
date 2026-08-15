@@ -8,23 +8,23 @@ export const ResultsList = ({ matches, getTeamName, getTeamLogo, onMatchClick, o
     return (
         <div className="space-y-3 mt-4">
             {recentMatches.map(match => (
-                <div key={match.id} onClick={() => onMatchClick(match)} className="bg-white dark:bg-gray-800/70 p-3 rounded-lg hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 shadow-md border border-gray-100 dark:border-gray-700/50">
-                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>{new Date(match.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                <div key={match.id} onClick={() => onMatchClick(match)} className="bg-white dark:bg-gray-800 p-3.5 sm:p-4 rounded-2xl hover:shadow-xl hover:bg-gray-50 dark:hover:bg-gray-700/80 cursor-pointer transition-all duration-200 shadow-md border border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-300">
+                        <span>📅 {new Date(match.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                         {getMatchBadge && getMatchBadge(match.date)}
                     </div>
-                    <div className="flex items-center justify-between mt-1">
-                        <div className="flex-1 text-sm font-bold flex items-center cursor-pointer" onClick={(e) => { e.stopPropagation(); onViewTeamDetails && onViewTeamDetails(match.homeTeamId); }}>
-                            <img src={getTeamLogo(match.homeTeamId)} referrerPolicy="no-referrer" className="w-5 h-5 rounded-full mr-2 shadow-sm object-contain bg-white" onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getTeamName(match.homeTeamId))}&background=101097&color=fff&rounded=true`; }} />
-                            {getTeamName(match.homeTeamId)}
+                    <div className="flex items-center justify-between mt-2 gap-2">
+                        <div className="flex-1 text-sm sm:text-base md:text-lg font-black flex items-center cursor-pointer group" onClick={(e) => { e.stopPropagation(); onViewTeamDetails && onViewTeamDetails(match.homeTeamId); }}>
+                            <img src={getTeamLogo(match.homeTeamId)} referrerPolicy="no-referrer" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full mr-2.5 shadow-md object-contain bg-white border border-gray-200 dark:border-gray-600" onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getTeamName(match.homeTeamId))}&background=101097&color=fff&rounded=true`; }} />
+                            <span className="group-hover:text-[#101097] dark:group-hover:text-blue-300 transition-colors">{getTeamName(match.homeTeamId)}</span>
                         </div>
-                        <span className="text-lg font-extrabold mx-3 text-[#101097] dark:text-blue-300">{match.scoreHome} - {match.scoreAway}</span>
-                        <div className="flex-1 text-sm font-bold flex items-center justify-end text-right cursor-pointer" onClick={(e) => { e.stopPropagation(); onViewTeamDetails && onViewTeamDetails(match.awayTeamId); }}>
-                            {getTeamName(match.awayTeamId)}
-                            <img src={getTeamLogo(match.awayTeamId)} referrerPolicy="no-referrer" className="w-5 h-5 rounded-full ml-2 shadow-sm object-contain bg-white" onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getTeamName(match.awayTeamId))}&background=101097&color=fff&rounded=true`; }} />
+                        <span className="text-base sm:text-lg md:text-xl font-black px-3 py-1 bg-blue-50 dark:bg-blue-950/80 text-[#101097] dark:text-blue-300 rounded-xl border border-blue-200 dark:border-blue-800/60 shadow-xs whitespace-nowrap">{match.scoreHome} - {match.scoreAway}</span>
+                        <div className="flex-1 text-sm sm:text-base md:text-lg font-black flex items-center justify-end text-right cursor-pointer group" onClick={(e) => { e.stopPropagation(); onViewTeamDetails && onViewTeamDetails(match.awayTeamId); }}>
+                            <span className="group-hover:text-[#101097] dark:group-hover:text-blue-300 transition-colors">{getTeamName(match.awayTeamId)}</span>
+                            <img src={getTeamLogo(match.awayTeamId)} referrerPolicy="no-referrer" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full ml-2.5 shadow-md object-contain bg-white border border-gray-200 dark:border-gray-600" onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getTeamName(match.awayTeamId))}&background=101097&color=fff&rounded=true`; }} />
                         </div>
                     </div>
-                    {match.status === 'Anulado' && <p className="text-center text-xs text-[#CE0E2D] dark:text-red-400 font-bold mt-1">PARTIDO ANULADO</p>}
+                    {match.status === 'Anulado' && <p className="text-center text-xs sm:text-sm text-[#CE0E2D] dark:text-red-400 font-extrabold mt-1.5">PARTIDO ANULADO (0-0)</p>}
                 </div>
             ))}
         </div>

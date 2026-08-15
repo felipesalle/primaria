@@ -1062,45 +1062,46 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
 
     const AdminPanel = () => (
         <div className="space-y-6">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl space-y-6 border-t-4 border-[#101097]">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b dark:border-gray-700 pb-4">
+            <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl shadow-xl space-y-6 border-t-4 border-[#101097] border-x border-b border-gray-200/60 dark:border-slate-700">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-gray-200 dark:border-slate-700 pb-5">
                     <div>
-                        <h2 className="text-3xl font-black font-outfit text-gray-900 dark:text-white">Panel de Administrador</h2>
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black font-outfit text-gray-900 dark:text-white tracking-tight">Panel de Administrador</h2>
+                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-300 font-medium mt-1">Gestiona torneos, equipos, jornadas y reportes oficiales</p>
                     </div>
-                    <div className="flex items-center overflow-x-auto max-w-full bg-gray-100 dark:bg-gray-700/60 p-1.5 rounded-2xl gap-1 scrollbar-none">
-                        <button onClick={() => setAdminTab('tournaments')} className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 ${adminTab === 'tournaments' ? 'bg-[#101097] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}>
+                    <div className="flex items-center overflow-x-auto max-w-full bg-gray-100 dark:bg-slate-700/70 p-2 rounded-2xl gap-1.5 scrollbar-none border border-gray-200 dark:border-slate-600/60">
+                        <button onClick={() => setAdminTab('tournaments')} className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm md:text-base font-extrabold transition-all whitespace-nowrap shrink-0 ${adminTab === 'tournaments' ? 'bg-[#101097] text-white shadow-lg scale-[1.02]' : 'text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-slate-600'}`}>
                             🏆 Torneos
                         </button>
-                        <button onClick={() => setAdminTab('teams')} className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 ${adminTab === 'teams' || adminTab === 'leagues' ? 'bg-[#101097] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}>
+                        <button onClick={() => setAdminTab('teams')} className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm md:text-base font-extrabold transition-all whitespace-nowrap shrink-0 ${adminTab === 'teams' || adminTab === 'leagues' ? 'bg-[#101097] text-white shadow-lg scale-[1.02]' : 'text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-slate-600'}`}>
                             👥 Plantillas & Equipos
                         </button>
-                        <button onClick={() => setAdminTab('schedule')} className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 ${adminTab === 'schedule' ? 'bg-[#101097] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}>
+                        <button onClick={() => setAdminTab('schedule')} className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm md:text-base font-extrabold transition-all whitespace-nowrap shrink-0 ${adminTab === 'schedule' ? 'bg-[#101097] text-white shadow-lg scale-[1.02]' : 'text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-slate-600'}`}>
                             ⚽ Calendario & Partidos
                         </button>
-                        <button onClick={() => setAdminTab('reports')} className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 ${adminTab === 'reports' ? 'bg-[#101097] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}>
+                        <button onClick={() => setAdminTab('reports')} className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm md:text-base font-extrabold transition-all whitespace-nowrap shrink-0 ${adminTab === 'reports' ? 'bg-[#101097] text-white shadow-lg scale-[1.02]' : 'text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-slate-600'}`}>
                             📄 Reportes PDF
                         </button>
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700/60 dark:to-gray-700/40 p-4 rounded-2xl border border-blue-100 dark:border-gray-600 shadow-sm">
-                    <div className="flex items-center space-x-2">
-                        <span className="text-xl">🏆</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-blue-50/90 via-indigo-50/80 to-blue-50/90 dark:from-slate-700/80 dark:to-slate-700/50 p-5 rounded-2xl border-2 border-blue-200/80 dark:border-slate-600 shadow-md">
+                    <div className="flex items-center space-x-3">
+                        <span className="text-2xl sm:text-3xl">🏆</span>
                         <div>
-                            <label className="text-xs font-bold text-[#101097] dark:text-blue-300 uppercase tracking-wider block">Torneo Activo (Administrador)</label>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Selecciona el torneo sobre el cual estás trabajando</p>
+                            <label className="text-xs sm:text-sm md:text-base font-black text-[#101097] dark:text-blue-300 uppercase tracking-wide block">Torneo Activo (Administrador)</label>
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium">Selecciona el torneo sobre el cual estás trabajando</p>
                         </div>
                     </div>
                     {tournaments.length > 0 ? (
                         <select 
                             value={selectedTournamentId} 
                             onChange={(e) => setSelectedTournamentId(e.target.value)} 
-                            className="bg-white dark:bg-gray-800 border-2 border-[#101097]/40 dark:border-blue-500/50 rounded-xl px-4 py-2 text-gray-900 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#101097] shadow-sm cursor-pointer w-full sm:w-auto"
+                            className="bg-white dark:bg-slate-800 border-2 border-[#101097]/40 dark:border-blue-400/50 rounded-2xl px-5 py-3 text-gray-900 dark:text-white font-black text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#101097] shadow-md cursor-pointer w-full sm:w-auto"
                         >
                             {tournaments.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                         </select>
                     ) : (
-                        <span className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">No hay torneos creados</span>
+                        <span className="text-sm sm:text-base text-yellow-600 dark:text-yellow-400 font-bold">No hay torneos creados</span>
                     )}
                 </div>
 
@@ -1410,33 +1411,33 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
 
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
-            <nav className="bg-[#101097] dark:bg-[#001E61] p-3 sm:p-4 shadow-xl sticky top-0 z-40 border-b border-white/10 backdrop-blur-md">
-                <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto gap-2.5 sm:gap-4">
-                    <div className="flex items-center space-x-2.5 cursor-pointer" onClick={() => setView('standings')}>
-                        <img src="https://i.imgur.com/pbiHVPL.png" alt="La Salle Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-md" />
-                        <span className="text-white font-extrabold text-lg sm:text-xl tracking-tight block font-outfit">Ligas La Salle</span>
-                        <span className="bg-white/20 text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold border border-white/20 shadow-sm">PRIMARIA</span>
+            <nav className="bg-[#101097] dark:bg-[#001E61] p-3.5 sm:p-4 md:p-5 shadow-2xl sticky top-0 z-40 border-b border-white/10 backdrop-blur-md">
+                <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto gap-3 sm:gap-4">
+                    <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setView('standings')}>
+                        <img src="https://i.imgur.com/pbiHVPL.png" alt="La Salle Logo" className="w-9 h-9 sm:w-11 sm:h-11 object-contain drop-shadow-md group-hover:scale-105 transition-transform" />
+                        <span className="text-white font-black text-xl sm:text-2xl md:text-3xl tracking-tight block font-outfit">Ligas La Salle</span>
+                        <span className="bg-white/20 text-white text-xs sm:text-sm px-3 py-1 rounded-full uppercase tracking-wider font-black border border-white/20 shadow-sm">PRIMARIA</span>
                     </div>
-                    <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto w-full sm:w-auto justify-center pb-0.5 sm:pb-0 scrollbar-none">
-                        <button onClick={() => setView('standings')} className={`nav-button text-white px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm whitespace-nowrap ${view === 'standings' ? 'bg-white/20 font-bold' : ''}`}>
-                            <TrophyIcon className="inline-block w-4 h-4 mr-1 text-white" />Clasificación
+                    <div className="flex items-center space-x-1.5 sm:space-x-2.5 overflow-x-auto w-full sm:w-auto justify-center pb-0.5 sm:pb-0 scrollbar-none">
+                        <button onClick={() => setView('standings')} className={`nav-button text-white px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm md:text-base font-extrabold whitespace-nowrap transition-all ${view === 'standings' ? 'bg-white/25 shadow-inner' : 'hover:bg-white/10'}`}>
+                            <TrophyIcon className="inline-block w-4 h-4 sm:w-5 sm:h-5 mr-1.5 text-white" />Clasificación
                         </button>
-                        <button onClick={() => setView('playoffs')} className={`nav-button text-white px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm whitespace-nowrap ${view === 'playoffs' ? 'bg-white/20 font-bold' : ''}`}>
-                            <span className="inline-block mr-1 text-white">🏆</span>Playoffs
+                        <button onClick={() => setView('playoffs')} className={`nav-button text-white px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm md:text-base font-extrabold whitespace-nowrap transition-all ${view === 'playoffs' ? 'bg-white/25 shadow-inner' : 'hover:bg-white/10'}`}>
+                            <span className="inline-block mr-1.5 text-white">🏆</span>Playoffs
                         </button>
-                        <button onClick={() => setView('admin')} className={`nav-button text-white px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm whitespace-nowrap ${view === 'admin' ? 'bg-white/20 font-bold' : ''}`}>
-                            <LockClosedIcon className="inline-block w-4 h-4 mr-1 text-white" />Admin
+                        <button onClick={() => setView('admin')} className={`nav-button text-white px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm md:text-base font-extrabold whitespace-nowrap transition-all ${view === 'admin' ? 'bg-white/25 shadow-inner' : 'hover:bg-white/10'}`}>
+                            <LockClosedIcon className="inline-block w-4 h-4 sm:w-5 sm:h-5 mr-1.5 text-white" />Admin
                         </button>
                         {user && (
-                            <button onClick={handleLogout} className="nav-button text-white bg-red-600 hover:bg-red-700 font-bold px-2.5 sm:px-3 py-1.5 rounded-full shadow-md text-xs whitespace-nowrap transition-all">Cerrar Sesión</button>
+                            <button onClick={handleLogout} className="nav-button text-white bg-red-600 hover:bg-red-700 font-extrabold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-md text-xs sm:text-sm whitespace-nowrap transition-all">Cerrar Sesión</button>
                         )}
-                        <button onClick={toggleTheme} className="p-1.5 sm:p-2 rounded-full text-white hover:bg-white/20 transition-all ml-0.5" title="Cambiar tema">
-                            {theme === 'light' ? <MoonIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : <SunIcon className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />}
+                        <button onClick={toggleTheme} className="p-2 sm:p-2.5 rounded-xl text-white hover:bg-white/20 transition-all ml-1" title="Cambiar tema">
+                            {theme === 'light' ? <MoonIcon className="w-5 h-5 sm:w-6 sm:h-6" /> : <SunIcon className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300" />}
                         </button>
                     </div>
                 </div>
             </nav>
-            <main className="max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-4">
+            <main className="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6">
                 {renderView()}
             </main>
             <MatchDetailsModal match={matchDetails} leagues={leagues} onClose={() => setMatchDetails(null)} getPlayerName={getPlayerName} getTeamName={getTeamName} />
