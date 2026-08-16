@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { PRESET_THEMES, GILDAN_COLOR_PALETTE, getShirtColorObj } from '../config/constants';
+import { PRESET_THEMES, GILDAN_COLOR_PALETTE, getShirtColorObj, getTeamShirtColor } from '../config/constants';
 
 export const EditTeamModal = ({ team, leagueTheme, onClose, onSave, showMessage }) => {
     if (!team) return null;
 
     const [name, setName] = useState(team.name);
     const [logoUrl, setLogoUrl] = useState(team.logoUrl);
-    const initialColor = getShirtColorObj(team.shirtColorName || team.shirtColor?.name);
+    const initialColor = getTeamShirtColor(team);
     const [shirtColorName, setShirtColorName] = useState(initialColor.name);
 
     const currentThemeName = leagueTheme || "Liga MX";

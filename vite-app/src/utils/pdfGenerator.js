@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { sortLeagues, getShirtColorObj } from '../config/constants';
+import { sortLeagues, getShirtColorObj, getTeamShirtColor } from '../config/constants';
 
 export const svgToPngDataUrl = (svgUrl) => {
     return new Promise((resolve) => {
@@ -405,7 +405,7 @@ export const generateTeamRostersPdf = async ({ selectedSport, visibleLeagues, vi
             if (team1) {
                 const teamPlayers = visiblePlayers.filter(p => p.teamId === team1.id).map(p => [p.name, p.group || '-']);
                 const teamLogoResult = logoMap[team1.id];
-                const shirtColor1 = getShirtColorObj(team1.shirtColorName || team1.shirtColor?.name);
+                const shirtColor1 = getTeamShirtColor(team1, visibleTeams);
                 
                 doc.setFontSize(13).setFont(undefined, 'bold').setTextColor(laSalleRed);
                 const teamNameX = teamLogoResult ? 28 : 14;
@@ -445,7 +445,7 @@ export const generateTeamRostersPdf = async ({ selectedSport, visibleLeagues, vi
             if (team2) {
                 const teamPlayers = visiblePlayers.filter(p => p.teamId === team2.id).map(p => [p.name, p.group || '-']);
                 const teamLogoResult = logoMap[team2.id];
-                const shirtColor2 = getShirtColorObj(team2.shirtColorName || team2.shirtColor?.name);
+                const shirtColor2 = getTeamShirtColor(team2, visibleTeams);
 
                 doc.setFontSize(13).setFont(undefined, 'bold').setTextColor(laSalleRed);
                 const teamNameX = teamLogoResult ? pageCenter + 19 : pageCenter + 10;

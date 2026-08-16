@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { doc, deleteDoc } from 'firebase/firestore';
-import { PRESET_THEMES, getShirtColorObj } from '../config/constants';
+import { PRESET_THEMES, getShirtColorObj, getTeamShirtColor } from '../config/constants';
 import { PencilIcon, TrashIcon, PlusIcon } from './Icons';
 
 export const LeagueCard = ({ league, teams, players, matches = [], appId, db, showMessage, onMatchDayChange, onThemeChange, onApplyThemeTeams, onEditTeam, onAddPlayers, onAddTeam, onDeleteTeam }) => {
@@ -151,7 +151,7 @@ export const LeagueCard = ({ league, teams, players, matches = [], appId, db, sh
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                         {teams.map(team => {
-                            const shirtColor = getShirtColorObj(team.shirtColorName || team.shirtColor?.name);
+                            const shirtColor = getTeamShirtColor(team, teams);
                             return (
                                 <div key={team.id} className="bg-gray-50 dark:bg-slate-700/60 p-4 sm:p-5 rounded-2xl shadow-sm space-y-3 border border-gray-200 dark:border-slate-600/60 hover:shadow-md transition-all">
                                     <div className="flex flex-wrap items-center justify-between gap-2">

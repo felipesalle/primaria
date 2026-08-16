@@ -201,6 +201,71 @@ export const getUniqueDefaultShirtColor = (existingTeams = [], preferredColorNam
     return unused || GILDAN_COLOR_PALETTE[0];
 };
 
+export const getTeamShirtColor = (team, allTeams = []) => {
+    if (!team) return GILDAN_COLOR_PALETTE[0];
+    
+    // 1. If explicit shirtColorName is set on team, use it
+    if (team.shirtColorName) {
+        const found = GILDAN_COLOR_PALETTE.find(c => c.name.toLowerCase() === team.shirtColorName.toLowerCase());
+        if (found) return found;
+    }
+
+    // 2. Scan presets for representative color
+    let candidateColorName = null;
+    const teamNameLower = (team.name || '').toLowerCase().trim();
+
+    Object.values(PRESET_THEMES).forEach(presetList => {
+        presetList.forEach(preset => {
+            const pName = (preset.name || '').toLowerCase();
+            if (pName && (teamNameLower.includes(pName) || pName.includes(teamNameLower))) {
+                if (!candidateColorName) candidateColorName = preset.shirtColorName;
+            }
+        });
+    });
+
+    // Keyword fallbacks for common team names
+    if (!candidateColorName) {
+        if (teamNameLower.includes('américa') || teamNameLower.includes('america')) candidateColorName = 'Amarillo Brillante';
+        else if (teamNameLower.includes('chivas') || teamNameLower.includes('guadalajara')) candidateColorName = 'Rojo';
+        else if (teamNameLower.includes('cruz azul')) candidateColorName = 'Royal';
+        else if (teamNameLower.includes('tigres')) candidateColorName = 'Oro';
+        else if (teamNameLower.includes('pumas')) candidateColorName = 'Azul Marino';
+        else if (teamNameLower.includes('real madrid') || teamNameLower.includes('madrid')) candidateColorName = 'Azul Claro';
+        else if (teamNameLower.includes('barcelona') || teamNameLower.includes('barça')) candidateColorName = 'Royal';
+        else if (teamNameLower.includes('atlético') || teamNameLower.includes('atletico')) candidateColorName = 'Rojo';
+        else if (teamNameLower.includes('betis')) candidateColorName = 'Verde Pasto';
+        else if (teamNameLower.includes('lakers')) candidateColorName = 'Púrpura';
+        else if (teamNameLower.includes('bulls')) candidateColorName = 'Rojo';
+        else if (teamNameLower.includes('celtics')) candidateColorName = 'Verde Césped';
+        else if (teamNameLower.includes('warriors')) candidateColorName = 'Royal';
+        else if (teamNameLower.includes('heat')) candidateColorName = 'Negro';
+        else if (teamNameLower.includes('méxico') || teamNameLower.includes('mexico')) candidateColorName = 'Verde Césped';
+        else if (teamNameLower.includes('brasil')) candidateColorName = 'Amarillo Brillante';
+        else if (teamNameLower.includes('argentina')) candidateColorName = 'Azul Celeste';
+    }
+
+    // Determine colors already assigned to other teams in the same league
+    const leagueTeams = (allTeams || []).filter(t => t.leagueId === team.leagueId);
+    const usedColorNames = leagueTeams
+        .filter(t => t.id !== team.id && t.shirtColorName)
+        .map(t => t.shirtColorName);
+
+    // If candidate color is not used in this league yet, use it!
+    if (candidateColorName && !usedColorNames.includes(candidateColorName)) {
+        const found = GILDAN_COLOR_PALETTE.find(c => c.name.toLowerCase() === candidateColorName.toLowerCase());
+        if (found) return found;
+    }
+
+    // If candidate color is taken or null, find an unused color in palette for this league
+    const unusedColor = GILDAN_COLOR_PALETTE.find(c => !usedColorNames.includes(c.name));
+    if (unusedColor) return unusedColor;
+
+    // Fallback by team index
+    const teamIndex = leagueTeams.findIndex(t => t.id === team.id);
+    const fallbackIdx = (teamIndex >= 0 ? teamIndex : 0) % GILDAN_COLOR_PALETTE.length;
+    return GILDAN_COLOR_PALETTE[fallbackIdx];
+};
+
 export const PRESET_THEMES = {
     "Liga MX": [
         { name: "Club América", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/227.png", shirtColorName: "Amarillo Brillante", shirtColorHex: "#FFD700" },
