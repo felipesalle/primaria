@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { doc, deleteDoc } from 'firebase/firestore';
-import { PRESET_THEMES } from '../config/constants';
+import { PRESET_THEMES, getShirtColorObj } from '../config/constants';
 import { PencilIcon, TrashIcon, PlusIcon } from './Icons';
 
 export const LeagueCard = ({ league, teams, players, matches = [], appId, db, showMessage, onMatchDayChange, onThemeChange, onApplyThemeTeams, onEditTeam, onAddPlayers, onAddTeam, onDeleteTeam }) => {
@@ -150,35 +150,49 @@ export const LeagueCard = ({ league, teams, players, matches = [], appId, db, sh
                         </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                        {teams.map(team => (
-                            <div key={team.id} className="bg-gray-50 dark:bg-slate-700/60 p-4 sm:p-5 rounded-2xl shadow-sm space-y-3 border border-gray-200 dark:border-slate-600/60 hover:shadow-md transition-all">
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className="flex items-center space-x-3">
-                                        <img src={team.logoUrl} alt={`Logo de ${team.name}`} referrerPolicy="no-referrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full shadow-md object-contain bg-white border border-gray-200 dark:border-gray-600" onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(team.name || 'EQ')}&background=101097&color=fff&rounded=true`; }} />
-                                        <span className="font-black text-base sm:text-lg text-gray-900 dark:text-white">{team.name}</span>
-                                        <button onClick={() => handleEditTeamClick(team)} className="text-blue-600 dark:text-blue-300 hover:text-blue-800 p-1.5 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors" title={isLocked ? "Equipos protegidos. Haz clic para desbloquear" : "Editar nombre o escudo"}>
-                                            {isLocked ? <span className="text-sm">🔒</span> : <PencilIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
-                                        </button>
-                                        <button onClick={() => handleDelete(team.id)} className="text-red-500 hover:text-red-700 p-1.5 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors disabled:text-gray-400 disabled:hover:bg-transparent" disabled={teams.length <= 4 || isLocked}>
-                                            <TrashIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        </button>
+                        {teams.map(team => {
+                            const shirtColor = getShirtColorObj(team.shirtColorName || team.shirtColor?.name);
+                            return (
+                                <div key={team.id} className="bg-gray-50 dark:bg-slate-700/60 p-4 sm:p-5 rounded-2xl shadow-sm space-y-3 border border-gray-200 dark:border-slate-600/60 hover:shadow-md transition-all">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                                            <img src={team.logoUrl} alt={`Logo de ${team.name}`} referrerPolicy="no-referrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full shadow-md object-contain bg-white border border-gray-200 dark:border-gray-600" onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(team.name || 'EQ')}&background=101097&color=fff&rounded=true`; }} />
+                                            <span className="font-black text-base sm:text-lg text-gray-900 dark:text-white">{team.name}</span>
+                                            
+                                            <span 
+                                                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl border shadow-xs transition-transform hover:scale-105 cursor-pointer" 
+                                                style={{ backgroundColor: shirtColor.hex, color: shirtColor.isLight ? '#000' : '#fff', borderColor: shirtColor.border }}
+                                                title={`Color de Playera: ${shirtColor.name} (Catálogo Gildan). Haz clic en la lapicera para cambiarlo.`}
+                                                onClick={() => handleEditTeamClick(team)}
+                                            >
+                                                <span className="text-xs sm:text-sm">👕</span>
+                                                <span>{shirtColor.name}</span>
+                                            </span>
+
+                                            <button onClick={() => handleEditTeamClick(team)} className="text-blue-600 dark:text-blue-300 hover:text-blue-800 p-1.5 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors" title={isLocked ? "Equipos protegidos. Haz clic para desbloquear" : "Editar nombre, escudo o color de playera"}>
+                                                {isLocked ? <span className="text-sm">🔒</span> : <PencilIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
+                                            </button>
+                                            <button onClick={() => handleDelete(team.id)} className="text-red-500 hover:text-red-700 p-1.5 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors disabled:text-gray-400 disabled:hover:bg-transparent" disabled={teams.length <= 4 || isLocked}>
+                                                <TrashIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                            </button>
+                                        </div>
+                                        <button onClick={() => onAddPlayers(team)} className="btn-primary text-xs sm:text-sm py-2 px-3.5 font-bold rounded-xl whitespace-nowrap">Añadir Jugadores</button>
                                     </div>
-                                    <button onClick={() => onAddPlayers(team)} className="btn-primary text-xs sm:text-sm py-2 px-3.5 font-bold rounded-xl whitespace-nowrap">Añadir Jugadores</button>
+                                    <ul className="list-disc pl-6 text-gray-700 dark:text-gray-200 space-y-1.5 text-sm sm:text-base font-semibold">
+                                        {players.filter(p => p.teamId === team.id).length > 0 ? (
+                                            players.filter(p => p.teamId === team.id).map(player => (
+                                                <li key={player.id} className="flex items-center justify-between">
+                                                    <span>{player.name} <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-normal">({player.group})</span></span>
+                                                    <button onClick={() => handleDeletePlayer(player.id)} className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"><TrashIcon className="w-4 h-4" /></button>
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <li className="text-sm text-gray-400 dark:text-gray-400 italic">No hay jugadores registrados en este equipo.</li>
+                                        )}
+                                    </ul>
                                 </div>
-                                <ul className="list-disc pl-6 text-gray-700 dark:text-gray-200 space-y-1.5 text-sm sm:text-base font-semibold">
-                                    {players.filter(p => p.teamId === team.id).length > 0 ? (
-                                        players.filter(p => p.teamId === team.id).map(player => (
-                                            <li key={player.id} className="flex items-center justify-between">
-                                                <span>{player.name} <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-normal">({player.group})</span></span>
-                                                <button onClick={() => handleDeletePlayer(player.id)} className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"><TrashIcon className="w-4 h-4" /></button>
-                                            </li>
-                                        ))
-                                    ) : (
-                                        <li className="text-sm text-gray-400 dark:text-gray-400 italic">No hay jugadores registrados en este equipo.</li>
-                                    )}
-                                </ul>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}

@@ -9,7 +9,8 @@ import { auth, db, APP_ID } from './config/firebase';
 import { 
     APP_LEVEL_NAME, sendTelegramNotification, sortLeagues, getSportTerms, 
     getSportScoringInfo, HOLIDAY_CTE_DATES, parseLocalDate, formatLocalDate, 
-    getFridayForDate, PRESET_THEMES, SPORTS_HERO_PRESETS 
+    getFridayForDate, PRESET_THEMES, SPORTS_HERO_PRESETS,
+    getShirtColorObj, getUniqueDefaultShirtColor 
 } from './config/constants';
 import { 
     generateUpcomingMatchesPdf, generateRefereeSheetPdf, 
@@ -360,9 +361,12 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
         try {
             for (let i = 0; i < leagueTeams.length; i++) {
                 const preset = presetList[i % presetList.length];
+                const shirtColor = getShirtColorObj(preset.shirtColorName);
                 await updateDoc(doc(db, `artifacts/${appId}/public/data/teams`, leagueTeams[i].id), {
                     name: preset.name,
-                    logoUrl: preset.logoUrl
+                    logoUrl: preset.logoUrl,
+                    shirtColorName: shirtColor.name,
+                    shirtColorHex: shirtColor.hex
                 });
             }
             showMessage(`Equipos actualizados exitosamente con la temática '${targetTheme}'.`);
@@ -374,12 +378,17 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
         }
     };
 
-    const handleUpdateTeam = async (teamId, name, logoUrl) => {
+    const handleUpdateTeam = async (teamId, name, logoUrl, shirtColorName, shirtColorHex) => {
         if (!user || !appId) return;
         try {
-            await updateDoc(doc(db, `artifacts/${appId}/public/data/teams`, teamId), { name, logoUrl });
+            const updateData = { name, logoUrl };
+            if (shirtColorName && shirtColorHex) {
+                updateData.shirtColorName = shirtColorName;
+                updateData.shirtColorHex = shirtColorHex;
+            }
+            await updateDoc(doc(db, `artifacts/${appId}/public/data/teams`, teamId), updateData);
             showMessage("Equipo actualizado con éxito.");
-            sendTelegramNotification(`Equipo actualizado: ${name} (ID: ${teamId})`, user.email);
+            sendTelegramNotification(`Equipo actualizado: ${name} (Playera: ${shirtColorName || 'No especificado'})`, user.email);
             setEditingTeam(null);
         } catch (e) {
             console.error("Error updating team:", e); showMessage("Error al actualizar el equipo.");
@@ -412,16 +421,20 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
     const handleAddTeam = async (leagueId) => {
         if (!user || !appId) return;
         const teamId = crypto.randomUUID();
+        const existingLeagueTeams = teams.filter(t => t.leagueId === leagueId);
+        const assignedColor = getUniqueDefaultShirtColor(existingLeagueTeams);
         const newTeam = {
             id: teamId,
-            name: `Nuevo Equipo ${teams.filter(t => t.leagueId === leagueId).length + 1}`,
+            name: `Nuevo Equipo ${existingLeagueTeams.length + 1}`,
             leagueId,
-            logoUrl: `https://placehold.co/100x100/A0A0A0/FFF?text=N`
+            logoUrl: `https://placehold.co/100x100/A0A0A0/FFF?text=N`,
+            shirtColorName: assignedColor.name,
+            shirtColorHex: assignedColor.hex
         };
         try {
             await setDoc(doc(db, `artifacts/${appId}/public/data/teams`, teamId), newTeam);
             showMessage("Equipo añadido con éxito.");
-            sendTelegramNotification(`Equipo añadido a liga ${getLeagueName(leagueId)}: ${newTeam.name}`, user.email);
+            sendTelegramNotification(`Equipo añadido a liga ${getLeagueName(leagueId)}: ${newTeam.name} (Playera: ${assignedColor.name})`, user.email);
         } catch (e) {
             console.error("Error adding team:", e);
             showMessage("Error al añadir el equipo.");
@@ -622,11 +635,14 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
 
                 for (const teamInfo of teamsToCreate) {
                     const teamId = crypto.randomUUID();
+                    const shirtColor = getShirtColorObj(teamInfo.shirtColorName);
                     await setDoc(doc(db, `artifacts/${appId}/public/data/teams`, teamId), { 
                         id: teamId, 
                         name: teamInfo.name, 
                         leagueId,
-                        logoUrl: teamInfo.logoUrl 
+                        logoUrl: teamInfo.logoUrl,
+                        shirtColorName: shirtColor.name,
+                        shirtColorHex: shirtColor.hex
                     });
                 }
             }

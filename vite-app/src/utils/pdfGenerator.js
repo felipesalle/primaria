@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { sortLeagues } from '../config/constants';
+import { sortLeagues, getShirtColorObj } from '../config/constants';
 
 export const svgToPngDataUrl = (svgUrl) => {
     return new Promise((resolve) => {
@@ -405,13 +405,30 @@ export const generateTeamRostersPdf = async ({ selectedSport, visibleLeagues, vi
             if (team1) {
                 const teamPlayers = visiblePlayers.filter(p => p.teamId === team1.id).map(p => [p.name, p.group || '-']);
                 const teamLogoResult = logoMap[team1.id];
+                const shirtColor1 = getShirtColorObj(team1.shirtColorName || team1.shirtColor?.name);
                 
-                doc.setFontSize(14).setFont(undefined, 'bold').setTextColor(laSalleRed);
+                doc.setFontSize(13).setFont(undefined, 'bold').setTextColor(laSalleRed);
                 const teamNameX = teamLogoResult ? 28 : 14;
                 if (teamLogoResult) {
                     doc.addImage(teamLogoResult.dataUrl, teamLogoResult.format.toUpperCase(), 14, y - 5, 10, 10);
                 }
                 doc.text(team1.name, teamNameX, y);
+
+                // Draw shirt color swatch and name
+                const hex1 = (shirtColor1.hex || '#1565C0').replace('#', '');
+                const r1 = parseInt(hex1.substring(0, 2), 16);
+                const g1 = parseInt(hex1.substring(2, 4), 16);
+                const b1 = parseInt(hex1.substring(4, 6), 16);
+
+                doc.setFontSize(8.5).setFont(undefined, 'bold').setTextColor(80, 80, 80);
+                doc.text("Playera:", teamNameX, y + 4.5);
+                
+                doc.setFillColor(r1, g1, b1);
+                doc.setDrawColor(160, 160, 160);
+                doc.circle(teamNameX + 13, y + 3.8, 1.8, 'FD');
+
+                doc.setTextColor(20, 20, 20);
+                doc.text(shirtColor1.name, teamNameX + 16, y + 4.5);
 
                 autoTable(doc, {
                     startY: y + 8,
@@ -428,13 +445,30 @@ export const generateTeamRostersPdf = async ({ selectedSport, visibleLeagues, vi
             if (team2) {
                 const teamPlayers = visiblePlayers.filter(p => p.teamId === team2.id).map(p => [p.name, p.group || '-']);
                 const teamLogoResult = logoMap[team2.id];
+                const shirtColor2 = getShirtColorObj(team2.shirtColorName || team2.shirtColor?.name);
 
-                doc.setFontSize(14).setFont(undefined, 'bold').setTextColor(laSalleRed);
+                doc.setFontSize(13).setFont(undefined, 'bold').setTextColor(laSalleRed);
                 const teamNameX = teamLogoResult ? pageCenter + 19 : pageCenter + 10;
                 if (teamLogoResult) {
                     doc.addImage(teamLogoResult.dataUrl, teamLogoResult.format.toUpperCase(), pageCenter + 10, y - 5, 10, 10);
                 }
                 doc.text(team2.name, teamNameX, y);
+
+                // Draw shirt color swatch and name
+                const hex2 = (shirtColor2.hex || '#1565C0').replace('#', '');
+                const r2 = parseInt(hex2.substring(0, 2), 16);
+                const g2 = parseInt(hex2.substring(2, 4), 16);
+                const b2 = parseInt(hex2.substring(4, 6), 16);
+
+                doc.setFontSize(8.5).setFont(undefined, 'bold').setTextColor(80, 80, 80);
+                doc.text("Playera:", teamNameX, y + 4.5);
+
+                doc.setFillColor(r2, g2, b2);
+                doc.setDrawColor(160, 160, 160);
+                doc.circle(teamNameX + 13, y + 3.8, 1.8, 'FD');
+
+                doc.setTextColor(20, 20, 20);
+                doc.text(shirtColor2.name, teamNameX + 16, y + 4.5);
 
                 autoTable(doc, {
                     startY: y + 8,
