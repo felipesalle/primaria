@@ -206,6 +206,7 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
     const [rosterSport, setRosterSport] = useState('');
     const [reportGroup, setReportGroup] = useState('ALL');
     const [sortByLastName, setSortByLastName] = useState(true);
+    const [formatLastNamesFirst, setFormatLastNamesFirst] = useState(true);
     const [playoffsSemifinalDate, setPlayoffsSemifinalDate] = useState('');
     const [playoffsFinalsDate, setPlayoffsFinalsDate] = useState('');
     const [playoffTiebreakerRule, setPlayoffTiebreakerRule] = useState('penalties');
@@ -1355,16 +1356,28 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
                                         <option key={grp} value={grp}>{grp}</option>
                                     ))}
                                 </select>
-                                <label className="flex items-center space-x-2 text-xs text-gray-700 dark:text-gray-200 cursor-pointer pt-1 font-semibold">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={sortByLastName} 
-                                        onChange={e => setSortByLastName(e.target.checked)} 
-                                        className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4" 
-                                    />
-                                    <span>Ordenar por Apellido 🔤</span>
-                                </label>
-                                <button onClick={() => generatePlayersByGroupPdf({ selectedGroup: reportGroup, sortByLastName, visibleLeagues, visibleTeams, visiblePlayers, showMessage })} className="btn-primary w-full mt-2 text-xs py-2">Generar PDF</button>
+                                <div className="space-y-1.5 pt-1">
+                                    <label className="flex items-center space-x-2 text-xs text-gray-700 dark:text-gray-200 cursor-pointer font-semibold">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={sortByLastName} 
+                                            onChange={e => setSortByLastName(e.target.checked)} 
+                                            className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4" 
+                                        />
+                                        <span>Ordenar por Apellido 🔤</span>
+                                    </label>
+
+                                    <label className="flex items-center space-x-2 text-xs text-gray-700 dark:text-gray-200 cursor-pointer font-semibold">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={formatLastNamesFirst} 
+                                            onChange={e => setFormatLastNamesFirst(e.target.checked)} 
+                                            className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4" 
+                                        />
+                                        <span>Mostrar: Apellidos, Nombres</span>
+                                    </label>
+                                </div>
+                                <button onClick={() => generatePlayersByGroupPdf({ selectedGroup: reportGroup, sortByLastName, formatLastNamesFirst, visibleLeagues, visibleTeams, visiblePlayers, showMessage })} className="btn-primary w-full mt-2 text-xs py-2">Generar PDF</button>
                             </div>
                         </div>
 

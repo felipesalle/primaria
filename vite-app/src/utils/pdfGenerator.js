@@ -490,26 +490,60 @@ export const generateTeamRostersPdf = async ({ selectedSport, visibleLeagues, vi
     showMessage("PDF de Listas de Equipos generado.");
 };
 
-export const sortPlayersByLastName = (playerA, playerB) => {
-    const getSortKey = (p) => {
-        const raw = (p.name || '').trim();
-        if (!raw) return '';
-        
-        if (raw.includes(',')) {
-            return raw.toUpperCase();
-        }
-        
-        const parts = raw.split(/\s+/);
-        if (parts.length > 1) {
-            const firstName = parts[0];
-            const apellidos = parts.slice(1).join(' ');
-            return `${apellidos} ${firstName}`.toUpperCase();
-        }
-        
-        return raw.toUpperCase();
-    };
+export const extractSpanishNameParts = (rawName) => {
+    const raw = (rawName || '').trim();
+    if (!raw) return { lastName: '', firstName: '', sortKey: '' };
 
-    return getSortKey(playerA).localeCompare(getSortKey(playerB), 'es', { sensitivity: 'base' });
+    if (raw.includes(',')) {
+        const [last, first] = raw.split(',');
+        const l = (last || '').trim();
+        const f = (first || '').trim();
+        return {
+            lastName: l,
+            firstName: f,
+            sortKey: `${l} ${f}`.toUpperCase()
+        };
+    }
+
+    const words = raw.split(/\s+/);
+    if (words.length === 1) {
+        return { lastName: words[0], firstName: '', sortKey: words[0].toUpperCase() };
+    }
+
+    if (words.length === 2) {
+        return {
+            lastName: words[1],
+            firstName: words[0],
+            sortKey: `${words[1]} ${words[0]}`.toUpperCase()
+        };
+    }
+
+    let lastNameIndex = words.length - 2;
+
+    if (lastNameIndex > 0) {
+        const prevWord = words[lastNameIndex - 1].toLowerCase();
+        if (['de', 'del', 'la', 'las', 'los', 'san', 'santa', 'van', 'von'].includes(prevWord)) {
+            lastNameIndex -= 1;
+            if (lastNameIndex > 0 && words[lastNameIndex - 1].toLowerCase() === 'de') {
+                lastNameIndex -= 1;
+            }
+        }
+    }
+
+    const firstNames = words.slice(0, lastNameIndex).join(' ');
+    const lastNames = words.slice(lastNameIndex).join(' ');
+
+    return {
+        lastName: lastNames,
+        firstName: firstNames,
+        sortKey: `${lastNames} ${firstNames}`.toUpperCase()
+    };
+};
+
+export const sortPlayersByLastName = (playerA, playerB) => {
+    const keyA = extractSpanishNameParts(playerA.name).sortKey;
+    const keyB = extractSpanishNameParts(playerB.name).sortKey;
+    return keyA.localeCompare(keyB, 'es', { sensitivity: 'base' });
 };
 
 export const sortGroupsNaturally = (aGroupStr, bGroupStr) => {
@@ -529,7 +563,7 @@ export const sortGroupsNaturally = (aGroupStr, bGroupStr) => {
     return charA.localeCompare(charB);
 };
 
-export const generatePlayersByGroupPdf = async ({ selectedGroup, sortByLastName = true, visibleLeagues, visibleTeams, visiblePlayers, showMessage }) => {
+export const generatePlayersByGroupPdf = async ({ selectedGroup, sortByLastName = true, formatLastNamesFirst = false, visibleLeagues, visibleTeams, visiblePlayers, showMessage }) => {
     if (!visiblePlayers || visiblePlayers.length === 0) {
         showMessage("No hay jugadores registrados para generar la lista.");
         return;
@@ -604,9 +638,17 @@ export const generatePlayersByGroupPdf = async ({ selectedGroup, sortByLastName 
             const sportLeagueName = league ? `${league.sport} (${league.name})` : '-';
             const shirtColor = team ? getTeamShirtColor(team, visibleTeams) : { name: 'Sin asignar', hex: '#888888' };
 
+            let displayName = player.name || '-';
+            if (formatLastNamesFirst) {
+                const parts = extractSpanishNameParts(player.name);
+                if (parts.lastName && parts.firstName) {
+                    displayName = `${parts.lastName}, ${parts.firstName}`;
+                }
+            }
+
             return [
                 String(idx + 1),
-                player.name || '-',
+                displayName,
                 sportLeagueName,
                 teamName,
                 `     ${shirtColor.name}`,
