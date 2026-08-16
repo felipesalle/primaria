@@ -489,3 +489,142 @@ export const generateTeamRostersPdf = async ({ selectedSport, visibleLeagues, vi
     doc.save(`listas_equipos_${selectedSport}.pdf`);
     showMessage("PDF de Listas de Equipos generado.");
 };
+
+export const sortGroupsNaturally = (aGroupStr, bGroupStr) => {
+    const normalize = (s) => (s || '').toString().trim().toUpperCase();
+    const a = normalize(aGroupStr);
+    const b = normalize(bGroupStr);
+
+    const numA = parseInt(a.match(/\d+/)?.[0] || '999', 10);
+    const numB = parseInt(b.match(/\d+/)?.[0] || '999', 10);
+
+    if (numA !== numB) {
+        return numA - numB;
+    }
+
+    const charA = a.replace(/[^A-Z]/g, '');
+    const charB = b.replace(/[^A-Z]/g, '');
+    return charA.localeCompare(charB);
+};
+
+export const generatePlayersByGroupPdf = async ({ selectedGroup, visibleLeagues, visibleTeams, visiblePlayers, showMessage }) => {
+    if (!visiblePlayers || visiblePlayers.length === 0) {
+        showMessage("No hay jugadores registrados para generar la lista.");
+        return;
+    }
+
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageCenter = doc.internal.pageSize.getWidth() / 2;
+
+    const laSalleBlue = '#001E61';
+    const laSalleRed = '#CE0E2D';
+
+    const schoolLogoUrl = 'https://i.imgur.com/dzDfAiQ.png';
+    const schoolLogoResult = await urlToB64(schoolLogoUrl);
+
+    // Group players by group
+    const groupsMap = {};
+    visiblePlayers.forEach(p => {
+        const rawGroup = (p.group || 'Sin Grupo').trim();
+        if (!groupsMap[rawGroup]) {
+            groupsMap[rawGroup] = [];
+        }
+        groupsMap[rawGroup].push(p);
+    });
+
+    let groupsToProcess = Object.keys(groupsMap).sort(sortGroupsNaturally);
+
+    if (selectedGroup && selectedGroup !== 'ALL') {
+        groupsToProcess = groupsToProcess.filter(g => g.toLowerCase() === selectedGroup.toLowerCase());
+        if (groupsToProcess.length === 0) {
+            showMessage(`No se encontraron alumnos para el grupo "${selectedGroup}".`);
+            return;
+        }
+    }
+
+    let isFirstPage = true;
+
+    for (const groupName of groupsToProcess) {
+        if (!isFirstPage) {
+            doc.addPage();
+        }
+        isFirstPage = false;
+
+        let y = 25;
+
+        if (schoolLogoResult) {
+            doc.addImage(schoolLogoResult.dataUrl, schoolLogoResult.format.toUpperCase(), 14, 12, 18, 18);
+        }
+
+        doc.setFontSize(16).setFont(undefined, 'bold').setTextColor(laSalleBlue);
+        doc.text("COLEGIO LA SALLE TUXTLA - PRIMARIA", pageCenter, y, { align: 'center' });
+        y += 7;
+
+        doc.setFontSize(12).setFont(undefined, 'bold').setTextColor(laSalleRed);
+        doc.text("LISTA DE ALUMNOS POR GRADO Y GRUPO - COLOR DE PLAYERA", pageCenter, y, { align: 'center' });
+        y += 7;
+
+        doc.setFontSize(14).setFont(undefined, 'bold').setTextColor(laSalleBlue);
+        doc.text(`GRADO Y GRUPO: ${groupName.toUpperCase()}`, pageCenter, y, { align: 'center' });
+        y += 8;
+
+        const groupPlayers = groupsMap[groupName].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+        const tableData = groupPlayers.map((player, idx) => {
+            const team = visibleTeams.find(t => t.id === player.teamId);
+            const teamName = team ? team.name : 'Sin Equipo';
+            const league = team ? visibleLeagues.find(l => l.id === team.leagueId) : null;
+            const sportLeagueName = league ? `${league.sport} (${league.name})` : '-';
+            const shirtColor = team ? getTeamShirtColor(team, visibleTeams) : { name: 'Sin asignar', hex: '#888888' };
+
+            return [
+                String(idx + 1),
+                player.name || '-',
+                sportLeagueName,
+                teamName,
+                `     ${shirtColor.name}`,
+                shirtColor.hex
+            ];
+        });
+
+        autoTable(doc, {
+            startY: y,
+            head: [['#', 'Nombre del Alumno / Jugador', 'Deporte / Liga', 'Equipo', 'Playera (Color Gildan)']],
+            body: tableData.map(row => [row[0], row[1], row[2], row[3], row[4]]),
+            theme: 'grid',
+            headStyles: { fillColor: laSalleBlue, textColor: '#FFFFFF', fontStyle: 'bold', fontSize: 9.5 },
+            styles: { fontSize: 9, cellPadding: 2, lineColor: laSalleBlue, lineWidth: 0.1, textColor: 30 },
+            columnStyles: {
+                0: { cellWidth: 10, halign: 'center' },
+                1: { cellWidth: 55, fontStyle: 'bold' },
+                2: { cellWidth: 45 },
+                3: { cellWidth: 40, fontStyle: 'bold' },
+                4: { cellWidth: 32, fontStyle: 'bold' },
+            },
+            didDrawCell: (data) => {
+                if (data.section === 'body' && data.column.index === 4) {
+                    const rowData = tableData[data.row.index];
+                    if (rowData) {
+                        const colorHex = rowData[5] || '#1565C0';
+                        const hex = colorHex.replace('#', '');
+                        const r = parseInt(hex.substring(0, 2), 16) || 0;
+                        const g = parseInt(hex.substring(2, 4), 16) || 0;
+                        const b = parseInt(hex.substring(4, 6), 16) || 0;
+
+                        doc.setFillColor(r, g, b);
+                        doc.setDrawColor(150, 150, 150);
+                        doc.circle(data.cell.x + 3.5, data.cell.y + data.cell.height / 2, 1.8, 'FD');
+                    }
+                }
+            },
+            margin: { left: 14, right: 14 },
+        });
+    }
+
+    const filename = selectedGroup && selectedGroup !== 'ALL' 
+        ? `lista_alumnos_grupo_${selectedGroup}.pdf` 
+        : `lista_alumnos_todos_los_grupos.pdf`;
+
+    doc.save(filename);
+    showMessage("PDF de Alumnos por Grado y Grupo generado con éxito.");
+};

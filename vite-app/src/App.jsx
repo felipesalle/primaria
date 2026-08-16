@@ -14,7 +14,8 @@ import {
 } from './config/constants';
 import { 
     generateUpcomingMatchesPdf, generateRefereeSheetPdf, 
-    generateStandingsAndTopScorersPdf, generateTeamRostersPdf 
+    generateStandingsAndTopScorersPdf, generateTeamRostersPdf,
+    generatePlayersByGroupPdf, sortGroupsNaturally 
 } from './utils/pdfGenerator';
 import { 
     getFacebookSummaryData, copyFacebookSummaryText, printFacebookSummaryWindow 
@@ -203,6 +204,7 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
     const [addingPlayersTeam, setAddingPlayersTeam] = useState(null);
     const [selectedTeamIdForDetail, setSelectedTeamIdForDetail] = useState(null);
     const [rosterSport, setRosterSport] = useState('');
+    const [reportGroup, setReportGroup] = useState('ALL');
     const [playoffsSemifinalDate, setPlayoffsSemifinalDate] = useState('');
     const [playoffsFinalsDate, setPlayoffsFinalsDate] = useState('');
     const [playoffTiebreakerRule, setPlayoffTiebreakerRule] = useState('penalties');
@@ -1311,7 +1313,7 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
 
                 {adminTab === 'reports' && (
                     <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl space-y-2">
                                 <label className="font-bold text-sm block">Próximos Partidos por Fecha</label>
                                 <select value={upcomingMatchesDate} onChange={e => setUpcomingMatchesDate(e.target.value)} className="w-full p-2 rounded-lg border text-sm">
@@ -1342,6 +1344,17 @@ const AppContent = ({ user, handleLogin, handleLogout, email, setEmail, password
                                     {[...new Set(visibleLeagues.map(l => l.sport))].sort().map(sport => <option key={sport} value={sport}>{sport}</option>)}
                                 </select>
                                 <button onClick={() => generateTeamRostersPdf({ selectedSport: rosterSport, visibleLeagues, visibleTeams, visiblePlayers, showMessage })} className="btn-primary w-full mt-2 text-xs py-2">Generar PDF</button>
+                            </div>
+
+                            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl space-y-2">
+                                <label className="font-bold text-sm block">Lista por Grado y Grupo (Playeras)</label>
+                                <select value={reportGroup} onChange={e => setReportGroup(e.target.value)} className="w-full p-2 rounded-lg border text-sm">
+                                    <option value="ALL">-- Todos los Grupos (1° a 6°) --</option>
+                                    {[...new Set(visiblePlayers.map(p => (p.group || '').trim()))].filter(Boolean).sort(sortGroupsNaturally).map(grp => (
+                                        <option key={grp} value={grp}>{grp}</option>
+                                    ))}
+                                </select>
+                                <button onClick={() => generatePlayersByGroupPdf({ selectedGroup: reportGroup, visibleLeagues, visibleTeams, visiblePlayers, showMessage })} className="btn-primary w-full mt-2 text-xs py-2">Generar PDF</button>
                             </div>
                         </div>
 
