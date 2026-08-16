@@ -490,6 +490,28 @@ export const generateTeamRostersPdf = async ({ selectedSport, visibleLeagues, vi
     showMessage("PDF de Listas de Equipos generado.");
 };
 
+export const sortPlayersByLastName = (playerA, playerB) => {
+    const getSortKey = (p) => {
+        const raw = (p.name || '').trim();
+        if (!raw) return '';
+        
+        if (raw.includes(',')) {
+            return raw.toUpperCase();
+        }
+        
+        const parts = raw.split(/\s+/);
+        if (parts.length > 1) {
+            const firstName = parts[0];
+            const apellidos = parts.slice(1).join(' ');
+            return `${apellidos} ${firstName}`.toUpperCase();
+        }
+        
+        return raw.toUpperCase();
+    };
+
+    return getSortKey(playerA).localeCompare(getSortKey(playerB), 'es', { sensitivity: 'base' });
+};
+
 export const sortGroupsNaturally = (aGroupStr, bGroupStr) => {
     const normalize = (s) => (s || '').toString().trim().toUpperCase();
     const a = normalize(aGroupStr);
@@ -507,7 +529,7 @@ export const sortGroupsNaturally = (aGroupStr, bGroupStr) => {
     return charA.localeCompare(charB);
 };
 
-export const generatePlayersByGroupPdf = async ({ selectedGroup, visibleLeagues, visibleTeams, visiblePlayers, showMessage }) => {
+export const generatePlayersByGroupPdf = async ({ selectedGroup, sortByLastName = true, visibleLeagues, visibleTeams, visiblePlayers, showMessage }) => {
     if (!visiblePlayers || visiblePlayers.length === 0) {
         showMessage("No hay jugadores registrados para generar la lista.");
         return;
@@ -568,7 +590,12 @@ export const generatePlayersByGroupPdf = async ({ selectedGroup, visibleLeagues,
         doc.text(`GRADO Y GRUPO: ${groupName.toUpperCase()}`, pageCenter, y, { align: 'center' });
         y += 8;
 
-        const groupPlayers = groupsMap[groupName].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        const groupPlayers = [...groupsMap[groupName]].sort((a, b) => {
+            if (sortByLastName) {
+                return sortPlayersByLastName(a, b);
+            }
+            return (a.name || '').localeCompare(b.name || '');
+        });
 
         const tableData = groupPlayers.map((player, idx) => {
             const team = visibleTeams.find(t => t.id === player.teamId);
