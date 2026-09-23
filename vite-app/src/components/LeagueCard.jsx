@@ -162,7 +162,7 @@ export const LeagueCard = ({ league, teams, players, matches = [], appId, db, sh
                                             <span 
                                                 className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl border shadow-xs transition-transform hover:scale-105 cursor-pointer" 
                                                 style={{ backgroundColor: shirtColor.hex, color: shirtColor.isLight ? '#000' : '#fff', borderColor: shirtColor.border }}
-                                                title={`Color de Playera: ${shirtColor.name} (Catálogo Gildan). Haz clic en la lapicera para cambiarlo.`}
+                                                title={`Color de Playera: ${shirtColor.name} (Catálogo Euro Cotton). Haz clic en la lapicera para cambiarlo.`}
                                                 onClick={() => handleEditTeamClick(team)}
                                             >
                                                 <span className="text-xs sm:text-sm">👕</span>

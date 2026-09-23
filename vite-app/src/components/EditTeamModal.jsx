@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PRESET_THEMES, GILDAN_COLOR_PALETTE, getShirtColorObj, getTeamShirtColor } from '../config/constants';
+import { PRESET_THEMES, EURO_COTTON_COLOR_PALETTE, getShirtColorObj, getTeamShirtColor } from '../config/constants';
 
 export const EditTeamModal = ({ team, leagueTheme, onClose, onSave, showMessage }) => {
     if (!team) return null;
@@ -79,7 +79,7 @@ export const EditTeamModal = ({ team, leagueTheme, onClose, onSave, showMessage 
 
                     <div className="pt-1">
                         <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-1.5 flex items-center justify-between">
-                            <span>👕 Color de Playera (Gildan)</span>
+                            <span>👕 Color de Playera (Euro Cotton)</span>
                             <span className="text-xs font-black px-2.5 py-1 rounded-lg border shadow-xs" style={{ backgroundColor: selectedColorObj.hex, color: selectedColorObj.isLight ? '#000' : '#fff', borderColor: selectedColorObj.border }}>
                                 {selectedColorObj.name}
                             </span>
@@ -93,7 +93,7 @@ export const EditTeamModal = ({ team, leagueTheme, onClose, onSave, showMessage 
                                 onChange={(e) => setShirtColorName(e.target.value)}
                                 className="w-full p-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white text-sm font-extrabold focus:ring-2 focus:ring-[#101097]"
                             >
-                                {GILDAN_COLOR_PALETTE.map(c => (
+                                {EURO_COTTON_COLOR_PALETTE.map(c => (
                                     <option key={c.name} value={c.name}>
                                         {c.name}
                                     </option>

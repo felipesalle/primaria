@@ -140,74 +140,122 @@ export const SPORTS_HERO_PRESETS = {
     }
 };
 
-export const GILDAN_COLOR_PALETTE = [
-    { name: "Amarillo Brillante", hex: "#FFD700", border: "#E6C200", isLight: true },
-    { name: "Oro", hex: "#FFA500", border: "#E69500", isLight: true },
-    { name: "Naranja", hex: "#FF6600", border: "#E65C00", isLight: false },
-    { name: "Naranja S.", hex: "#FF4500", border: "#E63E00", isLight: false },
-    { name: "Naranja Jaspe", hex: "#FF7F50", border: "#E67248", isLight: false },
-    { name: "Coral", hex: "#FF6F61", border: "#E66458", isLight: false },
-    { name: "Azalea", hex: "#E42575", border: "#CD2169", isLight: false },
-    { name: "Palo de Rosa", hex: "#E8ADAA", border: "#D19C99", isLight: true },
-    { name: "Rosa Seguridad", hex: "#FF69B4", border: "#E65F02", isLight: true },
-    { name: "Rosa Tropical", hex: "#E6399B", border: "#CF338C", isLight: false },
-    { name: "Rojo", hex: "#D32F2F", border: "#B71C1C", isLight: false },
-    { name: "Rojo Cereza", hex: "#990000", border: "#800000", isLight: false },
-    { name: "Marrón", hex: "#6D4C41", border: "#5D4037", isLight: false },
-    { name: "Chocolate", hex: "#3E2723", border: "#2C1B18", isLight: false },
-    { name: "Púrpura", hex: "#4A148C", border: "#3B1070", isLight: false },
-    { name: "Púrpura Jaspe", hex: "#7B1FA2", border: "#6A1B8E", isLight: false },
-    { name: "Azul Claro", hex: "#81D4FA", border: "#4FC3F7", isLight: true },
-    { name: "Azul Celeste", hex: "#29B6F6", border: "#0288D1", isLight: true },
-    { name: "Royal Jaspe", hex: "#2979FF", border: "#1765E6", isLight: false },
-    { name: "Royal", hex: "#1565C0", border: "#0D47A1", isLight: false },
-    { name: "Azul Marino", hex: "#001E61", border: "#0A1442", isLight: false },
-    { name: "Azul Marino Jaspe", hex: "#1A237E", border: "#121858", isLight: false },
-    { name: "Turquesa", hex: "#00ACC1", border: "#00838F", isLight: false },
-    { name: "Turquesa Antiguo", hex: "#00838F", border: "#006064", isLight: false },
-    { name: "Jade", hex: "#00897B", border: "#00695C", isLight: false },
-    { name: "Verde Pasto", hex: "#2E7D32", border: "#1B5E20", isLight: false },
-    { name: "Verde Césped", hex: "#4CAF50", border: "#388E3C", isLight: false },
-    { name: "Verde Irlandés", hex: "#00E676", border: "#00C853", isLight: true },
-    { name: "Verde Neón", hex: "#76FF03", border: "#64DD17", isLight: true },
-    { name: "Verde Seguridad", hex: "#CCFF00", border: "#B2E600", isLight: true },
-    { name: "Limón", hex: "#CDDC39", border: "#AFB42B", isLight: true },
-    { name: "Verde Militar", hex: "#4B5320", border: "#393F18", isLight: false },
-    { name: "Bosque", hex: "#1B5E20", border: "#144718", isLight: false },
-    { name: "Índigo", hex: "#3F51B5", border: "#303F9F", isLight: false },
-    { name: "Arena", hex: "#E3DAC9", border: "#C7BCAB", isLight: true },
-    { name: "Gris Jaspe", hex: "#BDBDBD", border: "#9E9E9E", isLight: true },
-    { name: "Gris Jaspe RS", hex: "#9E9E9E", border: "#757575", isLight: false },
-    { name: "Grafito Jaspe", hex: "#616161", border: "#424242", isLight: false },
-    { name: "Jaspe Oscuro", hex: "#37474F", border: "#263238", isLight: false },
-    { name: "Carbón", hex: "#212121", border: "#000000", isLight: false },
-    { name: "Negro", hex: "#000000", border: "#000000", isLight: false }
+export const EURO_COTTON_COLOR_PALETTE = [
+    // Fila 1 (Grisáceos)
+    { name: "Perla", hex: "#D2D4D9", border: "#B5B8BF", isLight: true },
+    { name: "Jaspe", hex: "#9EA2A8", border: "#84888E", isLight: true },
+    { name: "Oxford", hex: "#585C63", border: "#43474D", isLight: false },
+    { name: "Carbón", hex: "#32353B", border: "#1F2125", isLight: false },
+    // Fila 2 (Oscuros & Azules)
+    { name: "Negro", hex: "#121214", border: "#000000", isLight: false },
+    { name: "Marino", hex: "#141F36", border: "#0A111F", isLight: false },
+    { name: "Petróleo", hex: "#213F4E", border: "#142933", isLight: false },
+    { name: "Rey", hex: "#1A4ABB", border: "#103282", isLight: false },
+    // Fila 3 (Celestes & Aguamarinas)
+    { name: "Celeste", hex: "#45A1E5", border: "#237EBF", isLight: true },
+    { name: "Turquesa", hex: "#0096D6", border: "#0073A4", isLight: false },
+    { name: "Aqua", hex: "#00BCD4", border: "#0097A7", isLight: false },
+    { name: "Menta", hex: "#97D9C7", border: "#73BFAC", isLight: true },
+    // Fila 4 (Verdes)
+    { name: "Perry", hex: "#008B99", border: "#006772", isLight: false },
+    { name: "Limón", hex: "#99D822", border: "#76A814", isLight: true },
+    { name: "Bandera", hex: "#15783E", border: "#0C4F28", isLight: false },
+    { name: "Botella", hex: "#1B3C2A", border: "#0F2419", isLight: false },
+    // Fila 5 (Tierra & Neutros)
+    { name: "Militar", hex: "#5E6044", border: "#444630", isLight: false },
+    { name: "Tabaco", hex: "#4A3525", border: "#332419", isLight: false },
+    { name: "Kaki", hex: "#B8A484", border: "#9B8769", isLight: true },
+    { name: "Hueso", hex: "#EDE8DA", border: "#D1CAA5", isLight: true },
+    // Fila 6 (Cálidos Primarios)
+    { name: "Amarillo", hex: "#F5BA13", border: "#C99608", isLight: true },
+    { name: "Canario", hex: "#FFDE00", border: "#D4B800", isLight: true },
+    { name: "Naranja", hex: "#E85219", border: "#BD3E0D", isLight: false },
+    { name: "Rojo", hex: "#D62226", border: "#A31417", isLight: false },
+    // Fila 7 (Rojos Oscuros & Morados)
+    { name: "Cherry", hex: "#9B1B30", border: "#751222", isLight: false },
+    { name: "Vino", hex: "#591C29", border: "#3E111B", isLight: false },
+    { name: "Morado", hex: "#2C1E56", border: "#1C123B", isLight: false },
+    { name: "Heliconia", hex: "#D81B74", border: "#A81258", isLight: false },
+    // Fila 8 (Pasteles & Neones)
+    { name: "Salmón", hex: "#E85D65", border: "#C44047", isLight: false },
+    { name: "Rosa", hex: "#F2BAC7", border: "#D697A6", isLight: true },
+    { name: "Flavina", hex: "#E5FF00", border: "#B8CC00", isLight: true },
+    { name: "Verde Neón", hex: "#43F743", border: "#27CC27", isLight: true }
 ];
 
+export const GILDAN_COLOR_PALETTE = EURO_COTTON_COLOR_PALETTE;
+
+export const GILDAN_TO_EURO_COTTON_MAP = {
+    "amarillo brillante": "Amarillo",
+    "oro": "Amarillo",
+    "royal": "Rey",
+    "royal jaspe": "Rey",
+    "azul marino": "Marino",
+    "azul marino jaspe": "Marino",
+    "azul celeste": "Celeste",
+    "azul claro": "Celeste",
+    "verde césped": "Bandera",
+    "verde cesped": "Bandera",
+    "verde pasto": "Bandera",
+    "verde irlandés": "Limón",
+    "verde irlandes": "Limón",
+    "rojo cereza": "Cherry",
+    "púrpura": "Morado",
+    "purpura": "Morado",
+    "púrpura jaspe": "Morado",
+    "purpura jaspe": "Morado",
+    "grafito jaspe": "Carbón",
+    "gris jaspe": "Jaspe",
+    "gris jaspe rs": "Oxford",
+    "jaspe oscuro": "Carbón",
+    "arena": "Kaki",
+    "jade": "Perry",
+    "turquesa antiguo": "Aqua",
+    "naranja s.": "Naranja",
+    "naranja jaspe": "Naranja",
+    "coral": "Salmón",
+    "azalea": "Heliconia",
+    "palo de rosa": "Rosa",
+    "rosa seguridad": "Rosa",
+    "rosa tropical": "Heliconia",
+    "marrón": "Tabaco",
+    "marron": "Tabaco",
+    "chocolate": "Tabaco",
+    "verde militar": "Militar",
+    "bosque": "Botella",
+    "índigo": "Marino",
+    "indigo": "Marino",
+    "verde seguridad": "Flavina"
+};
+
 export const getShirtColorObj = (colorNameOrObj) => {
-    if (!colorNameOrObj) return GILDAN_COLOR_PALETTE[0];
+    if (!colorNameOrObj) return EURO_COTTON_COLOR_PALETTE[0];
     if (typeof colorNameOrObj === 'object' && colorNameOrObj.hex) return colorNameOrObj;
-    const found = GILDAN_COLOR_PALETTE.find(c => c.name.toLowerCase() === String(colorNameOrObj).toLowerCase());
-    return found || GILDAN_COLOR_PALETTE[0];
+    const rawName = String(colorNameOrObj).toLowerCase().trim();
+    let found = EURO_COTTON_COLOR_PALETTE.find(c => c.name.toLowerCase() === rawName);
+    if (!found && GILDAN_TO_EURO_COTTON_MAP[rawName]) {
+        const mappedName = GILDAN_TO_EURO_COTTON_MAP[rawName];
+        found = EURO_COTTON_COLOR_PALETTE.find(c => c.name.toLowerCase() === mappedName.toLowerCase());
+    }
+    return found || EURO_COTTON_COLOR_PALETTE[0];
 };
 
 export const getUniqueDefaultShirtColor = (existingTeams = [], preferredColorName = null) => {
     const usedNames = existingTeams.map(t => t.shirtColorName || (t.shirtColor && t.shirtColor.name)).filter(Boolean);
     if (preferredColorName && !usedNames.includes(preferredColorName)) {
-        const found = GILDAN_COLOR_PALETTE.find(c => c.name.toLowerCase() === preferredColorName.toLowerCase());
+        const found = getShirtColorObj(preferredColorName);
         if (found) return found;
     }
-    const unused = GILDAN_COLOR_PALETTE.find(c => !usedNames.includes(c.name));
-    return unused || GILDAN_COLOR_PALETTE[0];
+    const unused = EURO_COTTON_COLOR_PALETTE.find(c => !usedNames.includes(c.name));
+    return unused || EURO_COTTON_COLOR_PALETTE[0];
 };
 
 export const getTeamShirtColor = (team, allTeams = []) => {
-    if (!team) return GILDAN_COLOR_PALETTE[0];
+    if (!team) return EURO_COTTON_COLOR_PALETTE[0];
     
-    // 1. If explicit shirtColorName is set on team, use it
+    // 1. If explicit shirtColorName is set on team, resolve it (with legacy mapping support)
     if (team.shirtColorName) {
-        const found = GILDAN_COLOR_PALETTE.find(c => c.name.toLowerCase() === team.shirtColorName.toLowerCase());
-        if (found) return found;
+        return getShirtColorObj(team.shirtColorName);
     }
 
     // 2. Scan presets for representative color
@@ -223,169 +271,168 @@ export const getTeamShirtColor = (team, allTeams = []) => {
         });
     });
 
-    // Keyword fallbacks for common team names
+    // Keyword fallbacks for common team names (Euro Cotton)
     if (!candidateColorName) {
-        if (teamNameLower.includes('américa') || teamNameLower.includes('america')) candidateColorName = 'Amarillo Brillante';
+        if (teamNameLower.includes('américa') || teamNameLower.includes('america')) candidateColorName = 'Amarillo';
         else if (teamNameLower.includes('chivas') || teamNameLower.includes('guadalajara')) candidateColorName = 'Rojo';
-        else if (teamNameLower.includes('cruz azul')) candidateColorName = 'Royal';
-        else if (teamNameLower.includes('tigres')) candidateColorName = 'Oro';
-        else if (teamNameLower.includes('pumas')) candidateColorName = 'Azul Marino';
-        else if (teamNameLower.includes('real madrid') || teamNameLower.includes('madrid')) candidateColorName = 'Azul Claro';
-        else if (teamNameLower.includes('barcelona') || teamNameLower.includes('barça')) candidateColorName = 'Royal';
+        else if (teamNameLower.includes('cruz azul')) candidateColorName = 'Marino';
+        else if (teamNameLower.includes('tigres')) candidateColorName = 'Canario';
+        else if (teamNameLower.includes('pumas')) candidateColorName = 'Kaki';
+        else if (teamNameLower.includes('real madrid') || teamNameLower.includes('madrid')) candidateColorName = 'Celeste';
+        else if (teamNameLower.includes('barcelona') || teamNameLower.includes('barça')) candidateColorName = 'Rey';
         else if (teamNameLower.includes('atlético') || teamNameLower.includes('atletico')) candidateColorName = 'Rojo';
-        else if (teamNameLower.includes('betis')) candidateColorName = 'Verde Pasto';
-        else if (teamNameLower.includes('villarreal')) candidateColorName = 'Amarillo Brillante';
-        else if (teamNameLower.includes('lakers')) candidateColorName = 'Púrpura';
+        else if (teamNameLower.includes('betis')) candidateColorName = 'Bandera';
+        else if (teamNameLower.includes('villarreal')) candidateColorName = 'Amarillo';
+        else if (teamNameLower.includes('lakers')) candidateColorName = 'Morado';
         else if (teamNameLower.includes('bulls')) candidateColorName = 'Rojo';
-        else if (teamNameLower.includes('celtics')) candidateColorName = 'Verde Césped';
-        else if (teamNameLower.includes('warriors')) candidateColorName = 'Royal';
+        else if (teamNameLower.includes('celtics')) candidateColorName = 'Bandera';
+        else if (teamNameLower.includes('warriors')) candidateColorName = 'Rey';
         else if (teamNameLower.includes('heat')) candidateColorName = 'Negro';
         else if (teamNameLower.includes('knicks')) candidateColorName = 'Naranja';
-        else if (teamNameLower.includes('76ers') || teamNameLower.includes('sixers')) candidateColorName = 'Royal';
-        else if (teamNameLower.includes('raptors')) candidateColorName = 'Rojo Cereza';
-        else if (teamNameLower.includes('cavaliers') || teamNameLower.includes('cavs')) candidateColorName = 'Rojo Cereza';
-        else if (teamNameLower.includes('pistons')) candidateColorName = 'Royal';
-        else if (teamNameLower.includes('pacers')) candidateColorName = 'Oro';
-        else if (teamNameLower.includes('bucks')) candidateColorName = 'Verde Pasto';
+        else if (teamNameLower.includes('76ers') || teamNameLower.includes('sixers')) candidateColorName = 'Rey';
+        else if (teamNameLower.includes('raptors')) candidateColorName = 'Cherry';
+        else if (teamNameLower.includes('cavaliers') || teamNameLower.includes('cavs')) candidateColorName = 'Vino';
+        else if (teamNameLower.includes('pistons')) candidateColorName = 'Rey';
+        else if (teamNameLower.includes('pacers')) candidateColorName = 'Amarillo';
+        else if (teamNameLower.includes('bucks')) candidateColorName = 'Botella';
         else if (teamNameLower.includes('hawks')) candidateColorName = 'Rojo';
-        else if (teamNameLower.includes('hornets')) candidateColorName = 'Turquesa';
-        else if (teamNameLower.includes('magic')) candidateColorName = 'Azul Claro';
-        else if (teamNameLower.includes('wizards')) candidateColorName = 'Azul Marino';
-        else if (teamNameLower.includes('nuggets')) candidateColorName = 'Azul Marino Jaspe';
-        else if (teamNameLower.includes('timberwolves') || teamNameLower.includes('wolves')) candidateColorName = 'Azul Marino';
-        else if (teamNameLower.includes('thunder')) candidateColorName = 'Azul Celeste';
+        else if (teamNameLower.includes('hornets')) candidateColorName = 'Aqua';
+        else if (teamNameLower.includes('magic')) candidateColorName = 'Celeste';
+        else if (teamNameLower.includes('wizards')) candidateColorName = 'Marino';
+        else if (teamNameLower.includes('nuggets')) candidateColorName = 'Petróleo';
+        else if (teamNameLower.includes('timberwolves') || teamNameLower.includes('wolves')) candidateColorName = 'Marino';
+        else if (teamNameLower.includes('thunder')) candidateColorName = 'Turquesa';
         else if (teamNameLower.includes('trail blazers') || teamNameLower.includes('blazers')) candidateColorName = 'Rojo';
-        else if (teamNameLower.includes('jazz')) candidateColorName = 'Púrpura';
-        else if (teamNameLower.includes('clippers')) candidateColorName = 'Azul Marino';
-        else if (teamNameLower.includes('kings')) candidateColorName = 'Púrpura Jaspe';
+        else if (teamNameLower.includes('jazz')) candidateColorName = 'Morado';
+        else if (teamNameLower.includes('clippers')) candidateColorName = 'Marino';
+        else if (teamNameLower.includes('kings')) candidateColorName = 'Morado';
         else if (teamNameLower.includes('rockets')) candidateColorName = 'Rojo';
-        else if (teamNameLower.includes('grizzlies')) candidateColorName = 'Azul Celeste';
-        else if (teamNameLower.includes('pelicans')) candidateColorName = 'Oro';
+        else if (teamNameLower.includes('grizzlies')) candidateColorName = 'Celeste';
+        else if (teamNameLower.includes('pelicans')) candidateColorName = 'Kaki';
         else if (teamNameLower.includes('spurs')) candidateColorName = 'Carbón';
-        else if (teamNameLower.includes('oaxaca')) candidateColorName = 'Jade';
-        else if (teamNameLower.includes('méxico') || teamNameLower.includes('mexico')) candidateColorName = 'Verde Césped';
-        else if (teamNameLower.includes('brasil')) candidateColorName = 'Amarillo Brillante';
-        else if (teamNameLower.includes('argentina')) candidateColorName = 'Azul Celeste';
+        else if (teamNameLower.includes('oaxaca')) candidateColorName = 'Perry';
+        else if (teamNameLower.includes('méxico') || teamNameLower.includes('mexico')) candidateColorName = 'Bandera';
+        else if (teamNameLower.includes('brasil')) candidateColorName = 'Canario';
+        else if (teamNameLower.includes('argentina')) candidateColorName = 'Celeste';
     }
 
     // Determine colors already assigned to other teams in the same league
     const leagueTeams = (allTeams || []).filter(t => t.leagueId === team.leagueId);
     const usedColorNames = leagueTeams
         .filter(t => t.id !== team.id && t.shirtColorName)
-        .map(t => t.shirtColorName);
+        .map(t => getShirtColorObj(t.shirtColorName).name);
 
     // If candidate color is not used in this league yet, use it!
     if (candidateColorName && !usedColorNames.includes(candidateColorName)) {
-        const found = GILDAN_COLOR_PALETTE.find(c => c.name.toLowerCase() === candidateColorName.toLowerCase());
-        if (found) return found;
+        return getShirtColorObj(candidateColorName);
     }
 
     // If candidate color is taken or null, find an unused color in palette for this league
-    const unusedColor = GILDAN_COLOR_PALETTE.find(c => !usedColorNames.includes(c.name));
+    const unusedColor = EURO_COTTON_COLOR_PALETTE.find(c => !usedColorNames.includes(c.name));
     if (unusedColor) return unusedColor;
 
     // Fallback by team index
     const teamIndex = leagueTeams.findIndex(t => t.id === team.id);
-    const fallbackIdx = (teamIndex >= 0 ? teamIndex : 0) % GILDAN_COLOR_PALETTE.length;
-    return GILDAN_COLOR_PALETTE[fallbackIdx];
+    const fallbackIdx = (teamIndex >= 0 ? teamIndex : 0) % EURO_COTTON_COLOR_PALETTE.length;
+    return EURO_COTTON_COLOR_PALETTE[fallbackIdx];
 };
 
 export const PRESET_THEMES = {
     "Liga MX": [
-        { name: "Club América", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/227.png", shirtColorName: "Amarillo Brillante", shirtColorHex: "#FFD700" },
-        { name: "Chivas Guadalajara", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/218.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Cruz Azul", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/216.png", shirtColorName: "Royal", shirtColorHex: "#1565C0" },
-        { name: "Tigres UANL", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/221.png", shirtColorName: "Oro", shirtColorHex: "#FFA500" },
-        { name: "Pumas UNAM", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/223.png", shirtColorName: "Azul Marino", shirtColorHex: "#001E61" },
-        { name: "Rayados de Monterrey", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/220.png", shirtColorName: "Azul Marino Jaspe", shirtColorHex: "#1A237E" },
-        { name: "Toluca FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/225.png", shirtColorName: "Rojo Cereza", shirtColorHex: "#990000" },
-        { name: "Club León", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/7492.png", shirtColorName: "Verde Césped", shirtColorHex: "#4CAF50" },
-        { name: "Pachuca", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/222.png", shirtColorName: "Azul Claro", shirtColorHex: "#81D4FA" },
-        { name: "Santos Laguna", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/224.png", shirtColorName: "Verde Irlandés", shirtColorHex: "#00E676" },
+        { name: "Club América", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/227.png", shirtColorName: "Amarillo", shirtColorHex: "#F5BA13" },
+        { name: "Chivas Guadalajara", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/218.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Cruz Azul", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/216.png", shirtColorName: "Marino", shirtColorHex: "#141F36" },
+        { name: "Tigres UANL", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/221.png", shirtColorName: "Canario", shirtColorHex: "#FFDE00" },
+        { name: "Pumas UNAM", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/223.png", shirtColorName: "Kaki", shirtColorHex: "#B8A484" },
+        { name: "Rayados de Monterrey", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/220.png", shirtColorName: "Rey", shirtColorHex: "#1A4ABB" },
+        { name: "Toluca FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/225.png", shirtColorName: "Cherry", shirtColorHex: "#9B1B30" },
+        { name: "Club León", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/7492.png", shirtColorName: "Bandera", shirtColorHex: "#15783E" },
+        { name: "Pachuca", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/222.png", shirtColorName: "Celeste", shirtColorHex: "#45A1E5" },
+        { name: "Santos Laguna", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/224.png", shirtColorName: "Limón", shirtColorHex: "#99D822" },
     ],
     "Premier League": [
-        { name: "Manchester City", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/382.png", shirtColorName: "Azul Celeste", shirtColorHex: "#29B6F6" },
-        { name: "Liverpool FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/364.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Arsenal FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/359.png", shirtColorName: "Rojo Cereza", shirtColorHex: "#990000" },
-        { name: "Manchester United", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/360.png", shirtColorName: "Coral", shirtColorHex: "#FF6F61" },
-        { name: "Chelsea FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/363.png", shirtColorName: "Royal", shirtColorHex: "#1565C0" },
-        { name: "Tottenham Hotspur", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/367.png", shirtColorName: "Azul Marino", shirtColorHex: "#001E61" },
-        { name: "Newcastle United", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/361.png", shirtColorName: "Negro", shirtColorHex: "#000000" },
-        { name: "Aston Villa", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/362.png", shirtColorName: "Púrpura", shirtColorHex: "#4A148C" },
+        { name: "Manchester City", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/382.png", shirtColorName: "Celeste", shirtColorHex: "#45A1E5" },
+        { name: "Liverpool FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/364.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Arsenal FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/359.png", shirtColorName: "Cherry", shirtColorHex: "#9B1B30" },
+        { name: "Manchester United", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/360.png", shirtColorName: "Salmón", shirtColorHex: "#E85D65" },
+        { name: "Chelsea FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/363.png", shirtColorName: "Rey", shirtColorHex: "#1A4ABB" },
+        { name: "Tottenham Hotspur", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/367.png", shirtColorName: "Marino", shirtColorHex: "#141F36" },
+        { name: "Newcastle United", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/361.png", shirtColorName: "Negro", shirtColorHex: "#121214" },
+        { name: "Aston Villa", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/362.png", shirtColorName: "Vino", shirtColorHex: "#591C29" },
     ],
     "LaLiga Española": [
-        { name: "Real Madrid", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/86.png", shirtColorName: "Azul Claro", shirtColorHex: "#81D4FA" },
-        { name: "FC Barcelona", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/83.png", shirtColorName: "Royal", shirtColorHex: "#1565C0" },
-        { name: "Atlético de Madrid", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/1068.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Sevilla FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/243.png", shirtColorName: "Rojo Cereza", shirtColorHex: "#990000" },
-        { name: "Villarreal CF", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/102.png", shirtColorName: "Amarillo Brillante", shirtColorHex: "#FFD700" },
-        { name: "Valencia CF", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/94.png", shirtColorName: "Naranja", shirtColorHex: "#FF6600" },
-        { name: "Athletic Bilbao", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/93.png", shirtColorName: "Naranja S.", shirtColorHex: "#FF4500" },
-        { name: "Real Sociedad", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/89.png", shirtColorName: "Azul Celeste", shirtColorHex: "#29B6F6" },
-        { name: "Real Betis", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/244.png", shirtColorName: "Verde Pasto", shirtColorHex: "#2E7D32" },
+        { name: "Real Madrid", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/86.png", shirtColorName: "Celeste", shirtColorHex: "#45A1E5" },
+        { name: "FC Barcelona", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/83.png", shirtColorName: "Rey", shirtColorHex: "#1A4ABB" },
+        { name: "Atlético de Madrid", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/1068.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Sevilla FC", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/243.png", shirtColorName: "Cherry", shirtColorHex: "#9B1B30" },
+        { name: "Villarreal CF", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/102.png", shirtColorName: "Amarillo", shirtColorHex: "#F5BA13" },
+        { name: "Valencia CF", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/94.png", shirtColorName: "Naranja", shirtColorHex: "#E85219" },
+        { name: "Athletic Bilbao", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/93.png", shirtColorName: "Vino", shirtColorHex: "#591C29" },
+        { name: "Real Sociedad", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/89.png", shirtColorName: "Turquesa", shirtColorHex: "#0096D6" },
+        { name: "Real Betis", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/244.png", shirtColorName: "Bandera", shirtColorHex: "#15783E" },
     ],
     "Serie A Italiana": [
-        { name: "Inter de Milán", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/110.png", shirtColorName: "Royal", shirtColorHex: "#1565C0" },
-        { name: "AC Milan", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/103.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Juventus", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/111.png", shirtColorName: "Negro", shirtColorHex: "#000000" },
-        { name: "AS Roma", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/104.png", shirtColorName: "Rojo Cereza", shirtColorHex: "#990000" },
-        { name: "Napoli", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/114.png", shirtColorName: "Azul Celeste", shirtColorHex: "#29B6F6" },
-        { name: "Lazio", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/112.png", shirtColorName: "Azul Claro", shirtColorHex: "#81D4FA" },
-        { name: "Fiorentina", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/109.png", shirtColorName: "Púrpura", shirtColorHex: "#4A148C" },
-        { name: "Atalanta", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/105.png", shirtColorName: "Azul Marino", shirtColorHex: "#001E61" },
+        { name: "Inter de Milán", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/110.png", shirtColorName: "Rey", shirtColorHex: "#1A4ABB" },
+        { name: "AC Milan", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/103.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Juventus", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/111.png", shirtColorName: "Negro", shirtColorHex: "#121214" },
+        { name: "AS Roma", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/104.png", shirtColorName: "Cherry", shirtColorHex: "#9B1B30" },
+        { name: "Napoli", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/114.png", shirtColorName: "Celeste", shirtColorHex: "#45A1E5" },
+        { name: "Lazio", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/112.png", shirtColorName: "Aqua", shirtColorHex: "#00BCD4" },
+        { name: "Fiorentina", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/109.png", shirtColorName: "Morado", shirtColorHex: "#2C1E56" },
+        { name: "Atalanta", logoUrl: "https://a.espncdn.com/i/teamlogos/soccer/500/105.png", shirtColorName: "Marino", shirtColorHex: "#141F36" },
     ],
     "Estados de México": [
-        { name: "CDMX", logoUrl: "./escudos/cdmx.png", shirtColorName: "Rojo Cereza", shirtColorHex: "#990000" },
-        { name: "Jalisco", logoUrl: "./escudos/jalisco.png", shirtColorName: "Azul Marino", shirtColorHex: "#001E61" },
-        { name: "Nuevo León", logoUrl: "./escudos/nuevo_leon.png", shirtColorName: "Oro", shirtColorHex: "#FFA500" },
-        { name: "Chiapas", logoUrl: "./escudos/chiapas.png", shirtColorName: "Verde Irlandés", shirtColorHex: "#00E676" },
-        { name: "Yucatán", logoUrl: "./escudos/yucatan.png", shirtColorName: "Naranja", shirtColorHex: "#FF6600" },
-        { name: "Puebla", logoUrl: "./escudos/puebla.png", shirtColorName: "Azul Claro", shirtColorHex: "#81D4FA" },
-        { name: "Veracruz", logoUrl: "./escudos/veracruz.png", shirtColorName: "Verde Césped", shirtColorHex: "#4CAF50" },
-        { name: "Guanajuato", logoUrl: "./escudos/guanajuato.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Oaxaca", logoUrl: "./escudos/oaxaca.png", shirtColorName: "Jade", shirtColorHex: "#00897B" },
+        { name: "CDMX", logoUrl: "./escudos/cdmx.png", shirtColorName: "Cherry", shirtColorHex: "#9B1B30" },
+        { name: "Jalisco", logoUrl: "./escudos/jalisco.png", shirtColorName: "Marino", shirtColorHex: "#141F36" },
+        { name: "Nuevo León", logoUrl: "./escudos/nuevo_leon.png", shirtColorName: "Amarillo", shirtColorHex: "#F5BA13" },
+        { name: "Chiapas", logoUrl: "./escudos/chiapas.png", shirtColorName: "Bandera", shirtColorHex: "#15783E" },
+        { name: "Yucatán", logoUrl: "./escudos/yucatan.png", shirtColorName: "Naranja", shirtColorHex: "#E85219" },
+        { name: "Puebla", logoUrl: "./escudos/puebla.png", shirtColorName: "Celeste", shirtColorHex: "#45A1E5" },
+        { name: "Veracruz", logoUrl: "./escudos/veracruz.png", shirtColorName: "Limón", shirtColorHex: "#99D822" },
+        { name: "Guanajuato", logoUrl: "./escudos/guanajuato.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Oaxaca", logoUrl: "./escudos/oaxaca.png", shirtColorName: "Perry", shirtColorHex: "#008B99" },
     ],
     "Selecciones (Países)": [
-        { name: "México", logoUrl: "https://flagcdn.com/w160/mx.png", shirtColorName: "Verde Césped", shirtColorHex: "#4CAF50" },
-        { name: "Brasil", logoUrl: "https://flagcdn.com/w160/br.png", shirtColorName: "Amarillo Brillante", shirtColorHex: "#FFD700" },
-        { name: "Argentina", logoUrl: "https://flagcdn.com/w160/ar.png", shirtColorName: "Azul Celeste", shirtColorHex: "#29B6F6" },
-        { name: "Francia", logoUrl: "https://flagcdn.com/w160/fr.png", shirtColorName: "Royal", shirtColorHex: "#1565C0" },
-        { name: "España", logoUrl: "https://flagcdn.com/w160/es.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Alemania", logoUrl: "https://flagcdn.com/w160/de.png", shirtColorName: "Negro", shirtColorHex: "#000000" },
-        { name: "Inglaterra", logoUrl: "https://flagcdn.com/w160/gb-eng.png", shirtColorName: "Azul Marino", shirtColorHex: "#001E61" },
-        { name: "Italia", logoUrl: "https://flagcdn.com/w160/it.png", shirtColorName: "Royal Jaspe", shirtColorHex: "#2979FF" },
+        { name: "México", logoUrl: "https://flagcdn.com/w160/mx.png", shirtColorName: "Bandera", shirtColorHex: "#15783E" },
+        { name: "Brasil", logoUrl: "https://flagcdn.com/w160/br.png", shirtColorName: "Canario", shirtColorHex: "#FFDE00" },
+        { name: "Argentina", logoUrl: "https://flagcdn.com/w160/ar.png", shirtColorName: "Celeste", shirtColorHex: "#45A1E5" },
+        { name: "Francia", logoUrl: "https://flagcdn.com/w160/fr.png", shirtColorName: "Rey", shirtColorHex: "#1A4ABB" },
+        { name: "España", logoUrl: "https://flagcdn.com/w160/es.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Alemania", logoUrl: "https://flagcdn.com/w160/de.png", shirtColorName: "Negro", shirtColorHex: "#121214" },
+        { name: "Inglaterra", logoUrl: "https://flagcdn.com/w160/gb-eng.png", shirtColorName: "Marino", shirtColorHex: "#141F36" },
+        { name: "Italia", logoUrl: "https://flagcdn.com/w160/it.png", shirtColorName: "Turquesa", shirtColorHex: "#0096D6" },
     ],
     "Equipos NBA": [
-        { name: "Boston Celtics", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/bos.png", shirtColorName: "Verde Césped", shirtColorHex: "#4CAF50" },
-        { name: "Brooklyn Nets", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/bkn.png", shirtColorName: "Grafito Jaspe", shirtColorHex: "#616161" },
-        { name: "New York Knicks", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/nyk.png", shirtColorName: "Naranja", shirtColorHex: "#FF6600" },
-        { name: "Philadelphia 76ers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/phi.png", shirtColorName: "Royal", shirtColorHex: "#1565C0" },
-        { name: "Toronto Raptors", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/tor.png", shirtColorName: "Rojo Cereza", shirtColorHex: "#990000" },
-        { name: "Chicago Bulls", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/chi.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Cleveland Cavaliers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/cle.png", shirtColorName: "Rojo Cereza", shirtColorHex: "#990000" },
-        { name: "Detroit Pistons", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/det.png", shirtColorName: "Royal", shirtColorHex: "#1565C0" },
-        { name: "Indiana Pacers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/ind.png", shirtColorName: "Oro", shirtColorHex: "#FFA500" },
-        { name: "Milwaukee Bucks", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/mil.png", shirtColorName: "Verde Pasto", shirtColorHex: "#2E7D32" },
-        { name: "Atlanta Hawks", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/atl.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Charlotte Hornets", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/cha.png", shirtColorName: "Turquesa", shirtColorHex: "#00ACC1" },
-        { name: "Miami Heat", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/mia.png", shirtColorName: "Negro", shirtColorHex: "#000000" },
-        { name: "Orlando Magic", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/orl.png", shirtColorName: "Azul Claro", shirtColorHex: "#81D4FA" },
-        { name: "Washington Wizards", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/was.png", shirtColorName: "Azul Marino", shirtColorHex: "#001E61" },
-        { name: "Denver Nuggets", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/den.png", shirtColorName: "Azul Marino Jaspe", shirtColorHex: "#1A237E" },
-        { name: "Minnesota Timberwolves", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/min.png", shirtColorName: "Azul Marino", shirtColorHex: "#001E61" },
-        { name: "Oklahoma City Thunder", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/okc.png", shirtColorName: "Azul Celeste", shirtColorHex: "#29B6F6" },
-        { name: "Portland Trail Blazers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/por.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Utah Jazz", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/uta.png", shirtColorName: "Púrpura", shirtColorHex: "#4A148C" },
-        { name: "Golden State Warriors", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/gsw.png", shirtColorName: "Royal", shirtColorHex: "#1565C0" },
-        { name: "LA Clippers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/lac.png", shirtColorName: "Azul Marino", shirtColorHex: "#001E61" },
-        { name: "Los Angeles Lakers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/lal.png", shirtColorName: "Púrpura", shirtColorHex: "#4A148C" },
-        { name: "Phoenix Suns", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/phx.png", shirtColorName: "Naranja S.", shirtColorHex: "#FF4500" },
-        { name: "Sacramento Kings", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/sac.png", shirtColorName: "Púrpura Jaspe", shirtColorHex: "#7B1FA2" },
-        { name: "Dallas Mavericks", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/dal.png", shirtColorName: "Azul Celeste", shirtColorHex: "#29B6F6" },
-        { name: "Houston Rockets", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/hou.png", shirtColorName: "Rojo", shirtColorHex: "#D32F2F" },
-        { name: "Memphis Grizzlies", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/mem.png", shirtColorName: "Azul Celeste", shirtColorHex: "#29B6F6" },
-        { name: "New Orleans Pelicans", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/nop.png", shirtColorName: "Oro", shirtColorHex: "#FFA500" },
-        { name: "San Antonio Spurs", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/sas.png", shirtColorName: "Carbón", shirtColorHex: "#212121" }
+        { name: "Boston Celtics", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/bos.png", shirtColorName: "Bandera", shirtColorHex: "#15783E" },
+        { name: "Brooklyn Nets", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/bkn.png", shirtColorName: "Oxford", shirtColorHex: "#585C63" },
+        { name: "New York Knicks", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/nyk.png", shirtColorName: "Naranja", shirtColorHex: "#E85219" },
+        { name: "Philadelphia 76ers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/phi.png", shirtColorName: "Rey", shirtColorHex: "#1A4ABB" },
+        { name: "Toronto Raptors", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/tor.png", shirtColorName: "Cherry", shirtColorHex: "#9B1B30" },
+        { name: "Chicago Bulls", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/chi.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Cleveland Cavaliers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/cle.png", shirtColorName: "Vino", shirtColorHex: "#591C29" },
+        { name: "Detroit Pistons", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/det.png", shirtColorName: "Rey", shirtColorHex: "#1A4ABB" },
+        { name: "Indiana Pacers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/ind.png", shirtColorName: "Amarillo", shirtColorHex: "#F5BA13" },
+        { name: "Milwaukee Bucks", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/mil.png", shirtColorName: "Botella", shirtColorHex: "#1B3C2A" },
+        { name: "Atlanta Hawks", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/atl.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Charlotte Hornets", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/cha.png", shirtColorName: "Aqua", shirtColorHex: "#00BCD4" },
+        { name: "Miami Heat", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/mia.png", shirtColorName: "Negro", shirtColorHex: "#121214" },
+        { name: "Orlando Magic", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/orl.png", shirtColorName: "Celeste", shirtColorHex: "#45A1E5" },
+        { name: "Washington Wizards", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/was.png", shirtColorName: "Marino", shirtColorHex: "#141F36" },
+        { name: "Denver Nuggets", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/den.png", shirtColorName: "Petróleo", shirtColorHex: "#213F4E" },
+        { name: "Minnesota Timberwolves", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/min.png", shirtColorName: "Marino", shirtColorHex: "#141F36" },
+        { name: "Oklahoma City Thunder", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/okc.png", shirtColorName: "Turquesa", shirtColorHex: "#0096D6" },
+        { name: "Portland Trail Blazers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/por.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Utah Jazz", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/uta.png", shirtColorName: "Morado", shirtColorHex: "#2C1E56" },
+        { name: "Golden State Warriors", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/gsw.png", shirtColorName: "Rey", shirtColorHex: "#1A4ABB" },
+        { name: "LA Clippers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/lac.png", shirtColorName: "Marino", shirtColorHex: "#141F36" },
+        { name: "Los Angeles Lakers", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/lal.png", shirtColorName: "Morado", shirtColorHex: "#2C1E56" },
+        { name: "Phoenix Suns", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/phx.png", shirtColorName: "Naranja", shirtColorHex: "#E85219" },
+        { name: "Sacramento Kings", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/sac.png", shirtColorName: "Morado", shirtColorHex: "#2C1E56" },
+        { name: "Dallas Mavericks", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/dal.png", shirtColorName: "Celeste", shirtColorHex: "#45A1E5" },
+        { name: "Houston Rockets", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/hou.png", shirtColorName: "Rojo", shirtColorHex: "#D62226" },
+        { name: "Memphis Grizzlies", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/mem.png", shirtColorName: "Celeste", shirtColorHex: "#45A1E5" },
+        { name: "New Orleans Pelicans", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/nop.png", shirtColorName: "Kaki", shirtColorHex: "#B8A484" },
+        { name: "San Antonio Spurs", logoUrl: "https://a.espncdn.com/i/teamlogos/nba/500/sas.png", shirtColorName: "Carbón", shirtColorHex: "#32353B" }
     ]
 };
 

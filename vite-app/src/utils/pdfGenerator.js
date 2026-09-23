@@ -658,7 +658,7 @@ export const generatePlayersByGroupPdf = async ({ selectedGroup, sortByLastName 
 
         autoTable(doc, {
             startY: y,
-            head: [['#', 'Nombre del Alumno / Jugador', 'Deporte / Liga', 'Equipo', 'Playera (Color Gildan)']],
+            head: [['#', 'Nombre del Alumno / Jugador', 'Deporte / Liga', 'Equipo', 'Playera (Euro Cotton)']],
             body: tableData.map(row => [row[0], row[1], row[2], row[3], row[4]]),
             theme: 'grid',
             headStyles: { fillColor: laSalleBlue, textColor: '#FFFFFF', fontStyle: 'bold', fontSize: 9.5 },
